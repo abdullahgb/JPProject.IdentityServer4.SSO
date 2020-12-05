@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Stores;
+﻿using System;
+using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
@@ -76,6 +77,10 @@ namespace Jp.UI.SSO.Util
         public static void Remove(this List<Claim> claims, params string[] type)
         {
             claims.RemoveAll(f => type.Contains(f.Type));
+        }
+        public static T Get<T>(this IServiceProvider serviceProvider)
+        {
+            return (T)serviceProvider.GetService(typeof(T));
         }
     }
 }

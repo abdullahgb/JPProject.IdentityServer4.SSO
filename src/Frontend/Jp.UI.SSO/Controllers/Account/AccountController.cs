@@ -209,7 +209,7 @@ namespace Jp.UI.SSO.Controllers.Account
             var user = await _userManager.FindByNameAsync(userIdentity.UserName);
             if (user == null)
             {
-                await _userAppService.RegisterWithoutPassword(new RegisterWithoutPasswordViewModel()
+                await _userAppService.RegisterWithoutPassword(new SocialViewModel()
                 {
                     Username = userIdentity.UserName,
                     Name = userIdentity.Name,

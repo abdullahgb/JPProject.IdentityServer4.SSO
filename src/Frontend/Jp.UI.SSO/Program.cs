@@ -8,6 +8,7 @@ using Serilog.Extensions.Logging;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Threading.Tasks;
+using Jp.Api.Management.Configuration;
 
 namespace Jp.UI.SSO
 {
@@ -32,6 +33,7 @@ namespace Jp.UI.SSO
             var host = CreateHostBuilder(args).Build();
 
             Task.WaitAll(DbMigrationHelpers.EnsureSeedData(host.Services.CreateScope()));
+            Task.WaitAll(DatabaseChecker.EnsureDatabaseIsReady(host.Services.CreateScope()));
 
             host.Run();
         }

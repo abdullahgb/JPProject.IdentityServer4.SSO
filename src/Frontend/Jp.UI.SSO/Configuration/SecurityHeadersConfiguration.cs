@@ -26,6 +26,7 @@ namespace Jp.UI.SSO.Configuration
             {
                 options.DefaultSources(o => o.Self());
                 options.ObjectSources(o => o.None());
+                options.StyleSources(o => o.Self().UnsafeInline());
                 options.Sandbox(directive => directive.AllowForms().AllowSameOrigin().AllowScripts().AllowPopups());
                 options.BaseUris(configuration => configuration.Self());
                 options.FrameSources(o => o.Self()

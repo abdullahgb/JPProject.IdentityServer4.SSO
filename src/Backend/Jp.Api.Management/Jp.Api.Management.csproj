@@ -8,13 +8,17 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="5.1.0" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
-    <PackageReference Include="JPProject.Admin.Application" Version="3.2.10" />
+    <!--<PackageReference Include="JPProject.Admin.Application" Version="3.2.10" />
     <PackageReference Include="JPProject.Admin.EntityFramework.Repository" Version="3.2.10" />
     <PackageReference Include="JPProject.Sso.Application" Version="3.2.10" />
-    <PackageReference Include="JPProject.AspNet.Core" Version="3.2.10" />
+    <PackageReference Include="JPProject.AspNet.Core" Version="3.2.10" />-->
     <PackageReference Include="JpProject.AspNetCore.PasswordHasher.Argon2" Version="3.0.3" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
@@ -39,6 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\JPProject.Core\src\Admin\JPProject.Admin.Application\JPProject.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\JPProject.Core\src\Admin\JPProject.Admin.EntityFramework.Repository\JPProject.Admin.EntityFramework.Repository.csproj" />
+    <ProjectReference Include="..\..\..\..\JPProject.Core\src\Core\JPProject.AspNet.Core\JPProject.AspNet.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\JPProject.Core\src\SSO\JPProject.Sso.Application\JPProject.Sso.Application.csproj" />
     <ProjectReference Include="..\Jp.Database\Jp.Database.csproj" />
     <ProjectReference Include="..\Jp.Ldap\Jp.Ldap.csproj" />
   </ItemGroup>

@@ -50,7 +50,7 @@ namespace Jp.Api.Management.Controllers
             }
 
             if (model.ContainsFederationGateway())
-                await _userAppService.RegisterWithProvider(model);
+                await _userAppService.RegisterWithPasswordAndProvider(model);
             else
                 await _userAppService.Register(model);
 

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Dynamic;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Jp.Api.Management.Controllers
 {
@@ -6,7 +8,12 @@ namespace Jp.Api.Management.Controllers
     public class VersionController : ControllerBase
     {
         [HttpGet]
-        public string Get() => "full";
+        public string Get()
+        {
+            dynamic dyn = new ExpandoObject();
+            dyn.value = "Full";
+            return JsonConvert.SerializeObject(dyn);
+        }
 
     }
 }

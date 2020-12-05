@@ -1,4 +1,11 @@
-﻿using IdentityServer4.Services;
+﻿using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
+using Hellang.Middleware.ProblemDetails;
+using IdentityServer4.Services;
+using Jp.Api.Management.Configuration;
+using Jp.Api.Management.Configuration.Authorization;
+using Jp.Api.Management.Interfaces;
 using Jp.Database.Context;
 using Jp.UI.SSO.Configuration;
 using Jp.UI.SSO.Util;
@@ -18,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Serilog;
 
 
@@ -37,10 +45,15 @@ namespace Jp.UI.SSO
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllersWithViews()
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, opts => { opts.ResourcesPath = "Resources"; })
-                .AddDataAnnotationsLocalization();
+                .AddDataAnnotationsLocalization()
+                .AddApplicationPart(Assembly.Load(new AssemblyName("Jp.Api.Management")))
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                    options.AllowInputFormatterExceptionMessages = true;
+                });
             services.AddRazorPages();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -51,7 +64,7 @@ namespace Jp.UI.SSO
             });
 
             // The following line enables Application Insights telemetry collection.
-            services.AddApplicationInsightsTelemetry();
+            //services.AddApplicationInsightsTelemetry();
 
             // Add localization
             services.AddMvcLocalization();
@@ -102,6 +115,32 @@ namespace Jp.UI.SSO
 
             // .NET Native DI Abstraction
             RegisterServices(services);
+            ConfigureApiManagementServices(services);
+        }
+
+        public void ConfigureApiManagementServices(IServiceCollection services)
+        {
+            services.AddProblemDetails(options => options.IncludeExceptionDetails = (context, exception) => _env.IsDevelopment());
+            // Cors request
+            services.ConfigureCors();
+
+            // Configure policies
+            services.AddPolicies();
+
+            // configure openapi
+            services.AddSwagger(Configuration);
+
+            //// IdentityServer4 Admin services
+            services
+                .ConfigureJpAdminServices<AspNetUser>()
+                .ConfigureJpAdminStorageServices()
+                .SetupDefaultIdentityServerContext<SsoContext>();
+            SetupGeneralAuthorizationSettings(services);
+
+            services.AddScoped<IReCaptchaService, ReCaptchaService>();
+
+            // Response compression
+            services.AddBrotliCompression();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -133,9 +172,20 @@ namespace Jp.UI.SSO
 
             app.UseIdentityServer();
             app.UseLocalization();
-
+            app.UseDefaultCors();
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseProblemDetails();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SSO Api Management");
+                c.OAuthClientId("Swagger");
+                c.OAuthClientSecret("swagger");
+                c.OAuthAppName("SSO Management Api");
+                c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -144,7 +194,18 @@ namespace Jp.UI.SSO
                 endpoints.MapRazorPages();
             });
         }
-
+        private static void SetupGeneralAuthorizationSettings(IServiceCollection services)
+        {
+            services.ConfigureApplicationCookie(options =>
+            {
+                //options.AccessDeniedPath = new PathString("/accounts/access-denied");
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Task.CompletedTask;
+                };
+            });
+        }
         private void RegisterServices(IServiceCollection services)
         {
             // Adding dependencies from another layers (isolated from Presentation)
