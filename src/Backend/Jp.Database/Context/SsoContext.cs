@@ -16,10 +16,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using MultiTenancyServer;
+using MultiTenancyServer.EntityFramework;
+using MultiTenancyServer.Options;
 
 namespace Jp.Database.Context
 {
-    public class SsoContext : IdentityDbContext<UserIdentity, RoleIdentity, string>,
+    public class SsoContext :MultitenantIdentityDbContext,
+        ITenantDbContext<Tenant, string>,
+       //IdentityDbContext<UserIdentity, RoleIdentity, string>,
        IPersistedGrantDbContext,// IdentityServer4 Context
        IConfigurationDbContext, // IdentityServer4 Context
        ISsoContext, // Sso context
@@ -30,14 +36,23 @@ namespace Jp.Database.Context
         private readonly ConfigurationStoreOptions _storeOptions;
         private readonly OperationalStoreOptions _operationalOptions;
 
+        private static TenancyModelState<string> _tenancyModelState;
+        private readonly ITenancyContext<Tenant> _tenancyContext;
+        private readonly ILogger _logger;
+
         public SsoContext(
             DbContextOptions<SsoContext> options,
             ConfigurationStoreOptions storeOptions,
-            OperationalStoreOptions operationalOptions)
+            OperationalStoreOptions operationalOptions,
+            ILogger<SsoContext> logger,
+            ITenancyContext<Tenant> tenancyContext = null)
             : base(options)
         {
             _storeOptions = storeOptions;
             _operationalOptions = operationalOptions;
+
+            _tenancyContext = tenancyContext;
+            _logger = logger;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -51,7 +66,8 @@ namespace Jp.Database.Context
             base.OnModelCreating(builder);
             builder.Entity<RoleIdentity>().ToTable(TableConsts.IdentityRoles);
             builder.Entity<IdentityRoleClaim<string>>().ToTable(TableConsts.IdentityRoleClaims);
-            builder.Entity<IdentityUserRole<string>>().ToTable(TableConsts.IdentityUserRoles);
+            //builder.Entity<IdentityUserRole<string>>().ToTable(TableConsts.IdentityUserRoles);
+            builder.Entity<UserRoleIdentity>().ToTable(TableConsts.IdentityUserRoles);
 
             builder.Entity<UserIdentity>().ToTable(TableConsts.IdentityUsers);
             builder.Entity<IdentityUserLogin<string>>().ToTable(TableConsts.IdentityUserLogins);
@@ -63,10 +79,42 @@ namespace Jp.Database.Context
             builder.ConfigurePersistedGrantContext(_operationalOptions);
             builder.ConfigureSsoContext();
             builder.ConfigureEventStoreContext();
+
+            // MultiTenancyServer configuration.
+            var tenantStoreOptions = new TenantStoreOptions();
+            builder.ConfigureTenantContext<Tenant, string>(tenantStoreOptions);
+
+            // Add multi-tenancy support to model.
+            var tenantReferenceOptions = new TenantReferenceOptions();
+            builder.HasTenancy<string>(tenantReferenceOptions, out _tenancyModelState);
+
+            // Configure custom properties on Tenant (MultiTenancyServer).
+            builder.Entity<Tenant>();
+
+            // Configure properties on Role (ASP.NET Core Identity).
+            builder.Entity<UserRoleIdentity>(b =>
+            {
+                b.Ignore("Id");
+                // Add multi-tenancy support to entity.
+                //b.HasTenancy(() => _tenancyContext.Tenant.Id, _tenancyModelState, hasIndex: false);
+                // Primary key
+                b.HasKey(r => new { r.UserId, r.RoleId, r.TenantId });
+
+                //Remove unique index on NormalizedName.
+                b.HasIndex(r => r.UserId).IsUnique(false);
+                b.HasIndex(r => r.RoleId).IsUnique(false);
+                b.HasIndex(r => r.TenantId).IsUnique(false);
+
+                // Add unique index on TenantId and NormalizedName.
+                b.HasIndex("TenantId", "RoleId", "UserId")
+                    .HasName("TenantUserRoleIndex").IsUnique();
+
+            });
         }
 
         public Task<int> SaveChangesAsync()
         {
+            this.EnsureTenancy(_tenancyContext?.Tenant?.Id, _tenancyModelState, _logger);
             return base.SaveChangesAsync();
         }
 
@@ -83,5 +131,6 @@ namespace Jp.Database.Context
         public DbSet<EventDetails> StoredEventDetails { get; set; }
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
         public DbSet<SecurityKeyWithPrivate> SecurityKeys { get; set; }
+        public DbSet<Tenant> Tenants { get; set; }
     }
 }

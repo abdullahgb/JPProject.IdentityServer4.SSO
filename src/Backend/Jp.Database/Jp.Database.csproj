@@ -26,4 +26,8 @@
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\SSO\JPProject.Sso.AspNetIdentity\JPProject.Sso.AspNetIdentity.csproj" />
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\SSO\JPProject.Sso.EntityFramework.Repository\JPProject.Sso.EntityFramework.Repository.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

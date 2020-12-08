@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
 using Jp.Database.Context;
+using Jp.Database.Identity;
 using JPProject.EntityFrameworkCore.MigrationHelper;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using JPProject.Sso.Domain.Models;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MultiTenancyServer;
 
 namespace Jp.UI.SSO.Util
 {
@@ -39,7 +41,8 @@ namespace Jp.UI.SSO.Util
 
                 var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 var ssoContext = scope.ServiceProvider.GetRequiredService<SsoContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserIdentity>>();
+                var tenantMgr = scope.ServiceProvider.GetRequiredService<TenantManager<Tenant>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<IdentityUserManager>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<RoleIdentity>>();
 
                 await DbHealthChecker.TestConnection(ssoContext);
@@ -48,7 +51,7 @@ namespace Jp.UI.SSO.Util
                     ssoContext.Database.EnsureCreated();
 
                 await EnsureSeedIdentityServerData(ssoContext, configuration);
-                await EnsureSeedIdentityData(userManager, roleManager, configuration);
+                await EnsureSeedIdentityData(tenantMgr, userManager, roleManager, configuration);
                 await EnsureSeedGlobalConfigurationData(ssoContext, configuration, env);
             }
         }
@@ -172,7 +175,8 @@ namespace Jp.UI.SSO.Util
         /// Generate default admin user / role
         /// </summary>
         private static async Task EnsureSeedIdentityData(
-            UserManager<UserIdentity> userManager,
+            TenantManager<Tenant> tenantMgr,
+            IdentityUserManager userManager,
             RoleManager<RoleIdentity> roleManager,
             IConfiguration configuration)
         {
@@ -200,10 +204,17 @@ namespace Jp.UI.SSO.Util
 
             if (result.Succeeded)
             {
+                // Create Admin Tenant
+                var tenant = new Tenant("brickclay", "Brickclay");
+                await tenantMgr.CreateAsync(tenant);
+
+                // Create Admin Claims
                 await userManager.AddClaimAsync(user, new Claim("is4-rights", "manager"));
                 await userManager.AddClaimAsync(user, new Claim("username", Users.GetUser(configuration)));
                 await userManager.AddClaimAsync(user, new Claim("email", Users.GetEmail(configuration)));
-                await userManager.AddToRoleAsync(user, "Administrator");
+
+                // Create Admin Roles based on Tenant
+                await userManager.AddToRoleAsync(tenant,user, "Administrator");
             }
         }
 

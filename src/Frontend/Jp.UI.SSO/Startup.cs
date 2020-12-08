@@ -7,6 +7,7 @@ using Jp.Api.Management.Configuration;
 using Jp.Api.Management.Configuration.Authorization;
 using Jp.Api.Management.Interfaces;
 using Jp.Database.Context;
+using Jp.Database.Identity;
 using Jp.UI.SSO.Configuration;
 using Jp.UI.SSO.Util;
 using JPProject.AspNet.Core;
@@ -21,10 +22,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using MultiTenancyServer;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -75,7 +78,10 @@ namespace Jp.UI.SSO
             // ASP.NET Identity Configuration
             services
                 .AddIdentity<UserIdentity, RoleIdentity>(AccountOptions.NistAccountOptions)
-                .AddClaimsPrincipalFactory<ApplicationClaimsIdentityFactory>()
+                .AddClaimsPrincipalFactory<IdentityUserClaimsPrincipalFactory>()
+                .AddUserStore<IdentityUserStore<UserIdentity, Tenant>>()
+                .AddSignInManager<IdentitySigninManager>()
+                .AddUserManager<IdentityUserManager>()
                 .AddEntityFrameworkStores<SsoContext>()
                 .AddDefaultTokenProviders();
 
@@ -94,6 +100,7 @@ namespace Jp.UI.SSO
                 })
                 .AddAspNetIdentity<UserIdentity>()
                 .ConfigureContext(DetectDatabase, _env)
+                .AddAuthorizeInteractionResponseGenerator<TenantChooserResponseGenerator>()
                 .AddProfileService<SsoProfileService>()
                 // Configure key material. By default it supports load balance scenarios and have a key managemente close to Key Management from original IdentityServer4
                 // Unless you really know what are you doing, change it.
@@ -115,7 +122,28 @@ namespace Jp.UI.SSO
 
             // .NET Native DI Abstraction
             RegisterServices(services);
+            ConfigureMultiTenantServices(services);
             ConfigureApiManagementServices(services);
+            ConfigureIdentityServices(services);
+        }
+
+        public void ConfigureIdentityServices(IServiceCollection services)
+        {
+            services.AddScoped<IdentityUserStore<UserIdentity, Tenant>>();
+            services.AddScoped<IdentityUserClaimsPrincipalFactory>();
+            services.AddScoped<MultitenantIdentityDbContext, SsoContext>();
+        }
+
+        public void ConfigureMultiTenantServices(IServiceCollection services)
+        {
+            // MultiTenent
+            services.AddTransient<TenantManager<Tenant>>();
+            services.AddMultiTenancy<Tenant, string>()
+                // Add one or more IRequestParser (MultiTenancyServer.AspNetCore).
+                .AddSubdomainParser(".tenants.localhost")
+                .AddPathParser("/tenants/")
+                .AddClaimParser("tid")
+                .AddEntityFrameworkStore<SsoContext, Tenant, string>();
         }
 
         public void ConfigureApiManagementServices(IServiceCollection services)

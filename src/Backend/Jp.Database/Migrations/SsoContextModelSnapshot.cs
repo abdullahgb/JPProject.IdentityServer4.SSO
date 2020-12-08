@@ -843,6 +843,39 @@ namespace Jp.Database.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("JPProject.Sso.AspNetIdentity.Models.Identity.Tenant", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CanonicalName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Logo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedCanonicalName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedCanonicalName")
+                        .IsUnique()
+                        .HasName("CanonicalNameIndex")
+                        .HasFilter("[NormalizedCanonicalName] IS NOT NULL");
+
+                    b.ToTable("Tenants");
+                });
+
             modelBuilder.Entity("JPProject.Sso.AspNetIdentity.Models.Identity.UserIdentity", b =>
                 {
                     b.Property<string>("Id")
@@ -906,6 +939,32 @@ namespace Jp.Database.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("JPProject.Sso.AspNetIdentity.Models.Identity.UserRoleIdentity", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TenantId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId", "TenantId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("TenantId", "RoleId", "UserId")
+                        .IsUnique()
+                        .HasName("TenantUserRoleIndex");
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("JPProject.Sso.Domain.Models.Email", b =>
@@ -1106,21 +1165,6 @@ namespace Jp.Database.Migrations
                     b.ToTable("UserLogins");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("UserRoles");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
@@ -1293,6 +1337,21 @@ namespace Jp.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("JPProject.Sso.AspNetIdentity.Models.Identity.UserRoleIdentity", b =>
+                {
+                    b.HasOne("JPProject.Sso.AspNetIdentity.Models.Identity.RoleIdentity", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JPProject.Sso.AspNetIdentity.Models.Identity.UserIdentity", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("JPProject.Sso.Domain.Models.Email", b =>
                 {
                     b.OwnsOne("JPProject.Sso.Domain.Models.BlindCarbonCopy", "Bcc", b1 =>
@@ -1355,21 +1414,6 @@ namespace Jp.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("JPProject.Sso.AspNetIdentity.Models.Identity.UserIdentity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("JPProject.Sso.AspNetIdentity.Models.Identity.RoleIdentity", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("JPProject.Sso.AspNetIdentity.Models.Identity.UserIdentity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
