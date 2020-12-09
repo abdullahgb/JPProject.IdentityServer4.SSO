@@ -1,7 +1,27 @@
 ﻿@model Jp.UI.SSO.Models.RedirectViewModel
-
-<h1>You are now being returned to the application.</h1>
-<p>Once complete, you may close this tab</p>
+@{
+    Layout = "~/Views/Shared/_LayoutExt3.cshtml";
+}
+<div class="vertical-centered">
+    <!--start::Loading -->
+    <div class="signin-slider">
+        <div class="CsLine"></div>
+        <div class="subCsLine inc"></div>
+        <div class="subCsLine dec"></div>
+    </div>
+    <!--end::Loading -->
+    <div class="d-flex align-items-center p-12-44">
+        <span>
+            You are now being returned to the application. <p>Once complete, you may close this tab</p>
+        </span>
+    </div>
+</div>
 
 <meta http-equiv="refresh" content="0;url=@Model.RedirectUrl" data-url="@Model.RedirectUrl">
 <script src="@Url.Content("~/js/signin-redirect.js")"></script>
+<style>
+    p {
+        font-size: 13px;
+        color: #565252;
+    }
+</style>

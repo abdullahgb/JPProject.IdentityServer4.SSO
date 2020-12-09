@@ -9,5 +9,6 @@ namespace Jp.UI.SSO.Models
         public Guid TenantId { get; set; }
         public List<Tenant> Tenants { get; set; }
         public string ReturnUrl { get; set; }
+        public string ClientLogo { get; set; }
     }
 }

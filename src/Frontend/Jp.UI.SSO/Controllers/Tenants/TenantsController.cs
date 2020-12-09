@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4;
 using IdentityServer4.Extensions;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
 using Jp.Database.Context;
 using Jp.UI.SSO.Models;
 using Microsoft.AspNetCore.Http;
@@ -15,14 +18,27 @@ namespace Jp.UI.SSO.Controllers.Tenants
     public class TenantsController : Controller
     {
         private readonly SsoContext _context;
+        private readonly IIdentityServerInteractionService _interaction;
+        private readonly IClientStore _clientStore;
 
-        public TenantsController(SsoContext context)
+        public TenantsController(SsoContext context, IIdentityServerInteractionService interaction, IClientStore clientStore)
         {
             _context = context;
+            _interaction = interaction;
+            _clientStore = clientStore;
         }
         public async Task<IActionResult> Index(string returnUrl = "")
         {
-            var userRoles = _context.UserRoles.ToList();
+            var vm  = new TenantViewModel();
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            if (context?.ClientId != null)
+            {
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                if (client != null)
+                {
+                    vm.ClientLogo = client.LogoUri;
+                }
+            }
             var sub = User.GetSubjectId();
             var tenants = await (from tenant in _context.Tenants
                 join userRole in _context.UserRoles on tenant.Id equals userRole.TenantId
@@ -30,25 +46,24 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 select tenant).Distinct().ToListAsync();
             var count = tenants.Count;
             if (count < 1) return NotFound("No Tenant Found");
-            if (tenants.Count == 1)
-            {
-                var tenant = tenants.FirstOrDefault();
-                return await Select(Guid.Parse(tenant!.Id),  tenant.CanonicalName, returnUrl);
-            }
+            //if (tenants.Count == 1)
+            //{
+            //    var tenant = tenants.FirstOrDefault();
+            //    return await Select(Guid.Parse(tenant!.Id),  tenant.CanonicalName, returnUrl);
+            //}
             ViewBag.referer = Request.Headers["Referer"].ToString();
-            return View(new TenantViewModel
-            {
-                Tenants = tenants,
-                ReturnUrl = returnUrl
-            });
+            vm.Tenants = tenants;
+            vm.ReturnUrl = returnUrl;
+            return View(vm);
         }
         [HttpPost]
         public async Task<IActionResult> Select(Guid id, string name, string returnUrl)
         {
-            var identityUser = new IdentityServerUser(User.Claims.Single(r => r.Type == "sub").Value);
-            identityUser.AdditionalClaims.Add(new Claim("tid", id.ToString()));
-            identityUser.AdditionalClaims.Add(new Claim("tname", name));
-            await HttpContext.SignInAsync(identityUser);
+            var claims = new List<Claim>(HttpContext.User.Claims)
+            {
+                new Claim("tid", id.ToString()), new Claim("tname", name)
+            };
+            await HttpContext.SignInAsync(User.Claims.Single(r => r.Type == "sub").Value, claims.ToArray());
             return Redirect(returnUrl);
         }
         

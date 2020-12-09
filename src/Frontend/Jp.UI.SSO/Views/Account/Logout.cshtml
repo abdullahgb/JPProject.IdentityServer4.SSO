@@ -4,51 +4,63 @@
 @using Org.BouncyCastle.Crypto.Engines
 @inject IViewLocalizer Localizer
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_LayoutExt3.cshtml";
 }
-@section breadcrumb
-    {
-    <!-- Breadcrumb-->
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">@Localizer["Title-Home"]</li>
-        <li class="breadcrumb-item">
-            <a asp-action="Index" asp-controller="Home">User</a>
-        </li>
-        <li class="breadcrumb-item active">@Localizer["Body-Logout"]</li>
-    </ol>
-}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card-group">
-            <div class="card p-4">
-                <div class="card-body">
-                    @if (!string.IsNullOrEmpty(Model.Client))
-                    {
-                        <p>@Localizer["Body-IdentityServer"].Value.Replace("{{client}}", Model.Client)</p>
-                    }
-                    else
-                    {
-                        <p>@Localizer["Body-IdentityServer"].Value.Replace("{{client}}", "JP Project")</p>
-                    }
-                    <form asp-action="Logout">
-                        <input type="hidden" name="logoutId" value="@Model.LogoutId" />
-                        <fieldset>
-                            <div class="form-group">
-                                <button class="btn btn-primary">@Localizer["Body-Yes"]</button>
-
-                                @if (Model.PostLogoutRedirectUri.IsMissing())
-                                {
-                                    <a class="btn btn-primary" asp-action="Index" asp-controller="Home">@Localizer["Body-No"]</a>
-                                }
-                                else
-                                {
-                                    <a class="btn btn-secondary" href="@Model.PostLogoutRedirectUri">@Localizer["Body-No"]</a>
-                                }
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="vertical-centered">
+    <!--start::Loading -->
+    <div style="display: none" id="loading" class="signin-slider">
+        <div class="CsLine"></div>
+        <div class="subCsLine inc"></div>
+        <div class="subCsLine dec"></div>
     </div>
+    <!--end::Loading -->
+    <div class="company_Logo p-12-44">
+        @if (!string.IsNullOrEmpty(Model.ClientLogo))
+        {
+            <img src="@Model.ClientLogo" style="max-height: 50px !important;" alt="" />
+        }
+        else {
+            <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
+        }
+    </div>
+    <div id="description" class="d-flex align-items-center p-12-44">
+        @if (!string.IsNullOrEmpty(Model.Client))
+        {
+            <span>
+                @Localizer["Body-IdentityServer"].Value.Replace("{{client}}", Model.Client)
+            </span>
+        }
+        else
+        {
+            <span>
+                @Localizer["Body-IdentityServer"].Value.Replace("{{client}}", "Brickclay")
+            </span>
+        }
+
+    </div>
+    <form asp-action="Logout">
+        <div class="d-flex align-items-center justify-content-start p-0-44 font-size-13 mt-35">
+            <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+            <button onclick="showLoading(); " id="btn-yes" class="in-btn signIn-btn py-7 mr-7" aria-label="Sign-in options">@Localizer["Body-Yes"]</button>
+            @if (Model.PostLogoutRedirectUri.IsMissing())
+            {
+                <a onclick="showLoading();" class="in-btn back-btn " asp-action="Index" asp-controller="Home">@Localizer["Body-No"]</a>
+            }
+            else
+            {
+                <a onclick="showLoading();" class="in-btn back-btn " href="@Model.PostLogoutRedirectUri">@Localizer["Body-No"]</a>
+            }
+
+        </div>
+    </form>
 </div>
+<style>
+    #description {
+        margin-top: 10px;
+    }
+    #btn-yes {
+        cursor: pointer;
+        line-height: 20px;
+        width: 80px;
+    }
+</style>

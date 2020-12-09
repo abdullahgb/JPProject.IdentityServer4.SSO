@@ -1,17 +1,36 @@
 ﻿@model Jp.UI.SSO.Models.TenantViewModel
-
-<div class="page-consent">
-   
-    <ul class="list-group">
-        @foreach (var tenant in Model.Tenants)
+@{ Layout = "~/Views/Shared/_LayoutExt3.cshtml"; }
+<!--start::Select business-->
+<div class="vertical-centered">
+    <!--start::Loading -->
+    <div style="display: none" id="loading" class="signin-slider">
+        <div class="CsLine"></div>
+        <div class="subCsLine inc"></div>
+        <div class="subCsLine dec"></div>
+    </div>
+    <!--end::Loading -->
+    <div class="company_Logo p-12-44">
+        @if (!string.IsNullOrEmpty(Model.ClientLogo))
         {
-            <form method="post" asp-controller="Tenants" asp-action="Select">
-                <input type="hidden" name="id" value="@tenant.Id"/>
-                <input type="hidden" name="name" value="@tenant.CanonicalName"/>
-                <input type="hidden" asp-for="ReturnUrl"/>
-                <button type="submit" class="list-group-item list-group-item-action">@tenant.DisplayName</button>
-            </form>
+            <img src="@Model.ClientLogo" style="max-height: 50px !important;" alt="" />
         }
-    </ul>
-   
+        else {
+            <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
+        }
+    </div>
+
+    <h1>Select Business</h1>
+    @foreach (var tenant in Model.Tenants)
+    {
+<form method="post" asp-action="Select">
+    <div class="d-flex align-items-center userEmail" onclick="showLoading(); this.parentNode.submit();">
+        <input type="hidden" name="id" value="@tenant.Id" />
+        <input type="hidden" name="name" value="@tenant.CanonicalName" />
+        <input type="hidden" asp-for="ReturnUrl" />
+        <img class="mr-12"
+             src="assets/media/svg/icons/General/user_email.svg" />
+        <label class="cursor-pointer">@tenant.DisplayName</label>
+    </div>
+</form>}
 </div>
+<!--end::Select business-->

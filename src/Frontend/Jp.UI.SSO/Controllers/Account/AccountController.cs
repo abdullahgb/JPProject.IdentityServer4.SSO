@@ -597,6 +597,14 @@ namespace Jp.UI.SSO.Controllers.Account
             //}
 
             vm.Client = context?.ClientName;
+            if (context?.ClientId != null)
+            {
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                if (client != null)
+                {
+                    vm.ClientLogo = client.LogoUri;
+                }
+            }
             vm.PostLogoutRedirectUri = context?.PostLogoutRedirectUri;
             // show the logout prompt. this prevents attacks where the user
             // is automatically signed out by another malicious web page.

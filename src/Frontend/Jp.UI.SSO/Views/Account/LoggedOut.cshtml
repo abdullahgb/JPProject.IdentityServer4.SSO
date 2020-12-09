@@ -5,44 +5,38 @@
 @{
     // set this so the layout rendering sees an anonymous user
     ViewData["signed-out"] = true;
-    Layout = "~/Views/Shared/_LayoutExt.cshtml";
+    Layout = "~/Views/Shared/_LayoutExt3.cshtml";
 }
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card-group">
-                <div class="card p-4">
-                    <div class="card-body">
-                        <h1>
-                            @*Cya!*@
-                            <small>@Localizer["Title-You-are-now-logged-out"]</small>
-                        </h1>
-                        @if (!string.IsNullOrEmpty(Model.PostLogoutRedirectUri))
-                        {
-                            <div>
-                                @Localizer["Body-Click"] <a class="PostLogoutRedirectUri" href="@Model.PostLogoutRedirectUri">@Localizer["Body-here"]</a> @Localizer["Body-to-return"]
-                                <span>@Model.ClientName</span> @Localizer["Body-application"].
-                            </div>
-                        }
-                        else
-                        {
-                            <div>
-                                @Localizer["Body-Click"] <a asp-controller="Account" asp-action="Login">@Localizer["Body-here"]</a> @Localizer["Body-to-login"]
+<div class="vertical-centered">
+    <div class="align-items-center p-12-44">
+        <h1 style=" padding: 0 !important;">@Localizer["Title-You-are-now-logged-out"]</h1>
+        <span>
 
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-            @if (Model.SignOutIframeUrl != null)
+            @if (!string.IsNullOrEmpty(Model.PostLogoutRedirectUri))
             {
-                <iframe width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
+                <div>
+                    @Localizer["Body-Click"] <a class="PostLogoutRedirectUri" href="@Model.PostLogoutRedirectUri">@Localizer["Body-here"]</a> @Localizer["Body-to-return"]
+                    <span>@Model.ClientName</span> @Localizer["Body-application"].
+                </div>
             }
-        </div>
+            else
+            {
+                <div>
+                    @Localizer["Body-Click"] <a asp-controller="Account" asp-action="Login">@Localizer["Body-here"]</a> @Localizer["Body-to-login"]
+
+                </div>
+            }
+        </span>
+
     </div>
-</div>
-@section scripts
+    @if (Model.SignOutIframeUrl != null)
     {
+        <iframe style=" border: transparent;" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
+    }
+</div>
+
+@section scripts
+{
     @if (Model.AutomaticRedirectAfterSignOut)
     {
         <script src="@Url.Content("~/js/signout-redirect.js")"></script>

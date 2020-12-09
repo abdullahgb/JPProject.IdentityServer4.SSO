@@ -4,149 +4,126 @@
 @inject IConfiguration Configuration
 @inject IViewLocalizer Localizer
 @{
-    Layout = "~/Views/Shared/_LayoutExt.cshtml";
+    Layout = "~/Views/Shared/_LayoutExt3.cshtml";
 }
-<div class="container">
-    <br class="d-md-none" />
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            @await Html.PartialAsync("_ValidationSummary")
-            <div class="card-group">
-                @if (Model.EnableLocalLogin)
-                {
-                    <div class="card">
-                        @if (!string.IsNullOrEmpty(Model.ClientLogo))
-                        {
-                            <div class="card-header text-center">
-                                <img class="img-fluid" src="@Model.ClientLogo" alt="Client Logo" />
-                            </div>
-                        }
 
-                        <div class="card-body">
-
-                            <h1>@Localizer["Title-Login"]</h1>
-                            <br />
-                            <form asp-route="Login">
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">
-                                            <i class="icon-user"></i>
-                                        </span>
-                                    </div>
-                                    @if (Model.ShowDefaultUserPass)
-                                    {
-                                        <input class="form-control" placeholder="Username" value="@Configuration.GetSection("ApplicationSettings:DefaultUser").Value" asp-for=Username autofocus>
-                                    }
-                                    else
-                                    {
-                                        <input class="form-control" placeholder="Username" asp-for=Username autofocus>
-                                    }
-                                </div>
-                                <div class="input-group mb-4">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">
-                                            <i class="icon-lock"></i>
-                                        </span>
-                                    </div>
-                                    @if (Model.ShowDefaultUserPass)
-                                    {
-                                        <input type="password" class="form-control" placeholder="Password" value="@Configuration.GetSection("ApplicationSettings:DefaultPass").Value" asp-for=Password autocomplete="off">
-                                    }
-                                    else
-                                    {
-                                        <input type="password" class="form-control" placeholder="Password" asp-for=Password autocomplete="off">
-                                    }
-
-                                </div>
-                                @if (Model.AllowRememberLogin)
-                                {
-                                    <div class="input-group mb-4">
-                                        <label asp-for=RememberLogin>
-                                            <input asp-for=RememberLogin>
-                                            <strong>@Localizer["Body-RememberLogin"]</strong>
-                                        </label>
-                                    </div>
-                                }
-                                <div class="row">
-                                    <div class="col-6">
-                                        <button class="btn btn-primary px-4" name="button" value="login">@Localizer["Body-Login"]</button>
-                                    </div>
-                                    <div class="col-6 text-right">
-                                        <a class="btn btn-link px-0" asp-action="ForgotPassword">@Localizer["Body-Forgot"]</a>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <!--Please, help us, do not remove this info-->
-                        <div class="p-4 d-none d-lg-block text-center">
-                            <small>@Localizer["Body-Jp Project"] - </small><br /> <a href="https://github.com/brunohbrito/JP-Project" target="_blank"><img class="img-brand" src="@Url.Content("~/images/brand/logo.png")"></a>
-                        </div>
-                        <div class="p-4 d-lg-none text-center">
-                            <small>@Localizer["Body-Jp Project"] - </small><br /> <a href="https://github.com/brunohbrito/JP-Project" target="_blank"><img class="img-brand" src="@Url.Content("~/images/brand/logo-min.png")"></a>
-                        </div>
-                    </div>
-                }
-                <div class="card text-white bg-primary p-4">
-                    <div class="card-body text-center">
-
-                        <h2>@Localizer["Body-Sign-up"]</h2>
-                        @if (!Model.EnableLocalLogin && !Model.EnableExternalProviders)
-                        {
-                            <p>
-                                @Localizer["Body-Configured-login"].
-                            </p>
-                        }
-                        <a class="btn btn-primary active mt-3" asp-action="Register" type="button">@Localizer["Body-Register-now"]</a>
-                        <br />
-                        <br />
-                        @if (Model.EnableExternalProviders && Model.VisibleExternalProviders.Any())
-                        {
-                            <p>
-                                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "google"))
-                                {
-                                    <a class="btn btn-brand btn-google-plus"
-                                       asp-action="ExternalLogin"
-                                       asp-route-provider="Google"
-                                       asp-route-returnUrl="@Model.ReturnUrl">
-                                        <i class="fa fa-google-plus"></i>
-                                        <span>@Localizer["Body-Google+"]</span>
-                                    </a>
-                                }
-                                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "twitter"))
-                                {
-                                    <a class="btn btn-brand btn-twitter"
-                                       asp-action="ExternalLogin"
-                                       asp-route-provider="Twitter"
-                                       asp-route-returnUrl="@Model.ReturnUrl">
-                                        <i class="fa fa-twitter"></i>
-                                        <span>@Localizer["Body-Twitter"]</span>
-                                    </a>
-                                }
-                                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "facebook"))
-                                {
-                                    <a class="btn btn-brand btn-facebook"
-                                       asp-action="ExternalLogin"
-                                       asp-route-provider="Facebook"
-                                       asp-route-returnUrl="@Model.ReturnUrl">
-                                        <i class="fa fa-facebook"></i>
-                                        <span>@Localizer["Body-Facebook"]</span>
-                                    </a>
-                                }
-                                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "openidconnect"))
-                                {
-                                    <a class="btn btn-primary active mt-3"
-                                       asp-action="ExternalLogin"
-                                       asp-route-provider="OpenIdConnect"
-                                       asp-route-returnUrl="@Model.ReturnUrl">
-                                        <span>External Single Sign On - SSO</span>
-                                    </a>
-                                }
-                            </p>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-
+<!--start::create an account -->
+<div class="vertical-centered">
+    <!--start::Loading -->
+    <div style="display: none" id="loading" class="signin-slider">
+        <div class="CsLine"></div>
+        <div class="subCsLine inc"></div>
+        <div class="subCsLine dec"></div>
     </div>
+    <!--end::Loading -->
+    <div class="company_Logo p-12-44">
+        @if (!string.IsNullOrEmpty(Model.ClientLogo))
+        {
+            <img src="@Model.ClientLogo" style="max-height: 50px !important;" alt="" />
+        }
+        else
+        {
+            <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
+        }
+    </div>
+    <h1>Sign in </h1>
+    @await Html.PartialAsync("_ValidationSummary")
+    @if (Model.EnableLocalLogin)
+    {
+        <form method="post" asp-antiforgery="true" asp-action="Login" class="form">
+            <div class="d-flex align-items-center flex-column userInput">
+                <input type="text"
+                       placeholder="User@example.com"
+                       asp-for=Username
+                       tabindex="1"
+                       class="form-control">
+                <br />
+                <input type="password"
+                       id="password"
+                       placeholder="Password"
+                       asp-for=Password
+                       tabindex="2"
+                       class="form-control">
+            </div>
+            <div class="d-flex align-items-center p-0-44 pt-15 font-size-13">
+                <label aria-label="remember me"
+                       asp-for=RememberLogin
+                       class="inherit">
+                    <input type="checkbox"
+                           asp-for=RememberLogin
+                           class="ml-0" />
+                    <span class="mt--1"> @Localizer["Body-RememberLogin"]</span>
+                </label>
+
+            </div>
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="d-flex align-items-center p-0-44 pt-10 font-size-12">
+                <span class="mr-7">No account? </span>
+                <a asp-action="Register"
+                   aria-label="Create a quick finance account">Create one!</a>
+            </div>
+
+            <div class="d-flex flex-column p-0-44 font-size-13">
+                <a asp-action="ForgotPassword"
+                   class=" py-7"
+                   aria-label="can't access your account">Can’t access your account?</a>
+            </div>
+            @*@if (!Model.EnableLocalLogin && !Model.EnableExternalProviders)
+                {
+                    <p>
+                        @Localizer["Body-Configured-login"].
+                    </p>
+                }
+                <div>
+                        @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "facebook"))
+                        {
+                            <a class="btn btn-icon btn-circle btn-light-facebook mr-2"
+                               asp-action="ExternalLogin"
+                               asp-route-provider="Facebook"
+                               asp-route-returnUrl="@Model.ReturnUrl">
+                                <i class="socicon-facebook"></i>
+                                <span>@Localizer["Body-Facebook"]</span>
+                            </a>
+                        }
+                        @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "google"))
+                        {
+                            <a class="btn btn-icon btn-circle btn-light-google mr-2"
+                               asp-action="ExternalLogin"
+                               asp-route-provider="Google"
+                               asp-route-returnUrl="@Model.ReturnUrl">
+                                <i class="socicon-linkedin"></i>
+                                <span>@Localizer["Body-Google+"]</span>
+                            </a>
+                        }
+                        @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "twitter"))
+                        {
+                            <a class="btn btn-icon btn-circle btn-light-twitter mr-2"
+                               asp-action="ExternalLogin"
+                               asp-route-provider="Twitter"
+                               asp-route-returnUrl="@Model.ReturnUrl">
+                                <i class="socicon-twitter"></i>
+                                <span>@Localizer["Body-Twitter"]</span>
+                            </a>
+                        }
+                        @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "openidconnect"))
+                        {
+                            <a class="btn btn-primary active mt-3"
+                               asp-action="ExternalLogin"
+                               asp-route-provider="OpenIdConnect"
+                               asp-route-returnUrl="@Model.ReturnUrl">
+                                <span>External Single Sign On - SSO</span>
+                            </a>
+                        }
+                    </div>*@
+            <div class="d-flex align-items-center justify-content-end p-0-44 font-size-13 mt-35">
+                <button type="submit"
+                        name="button" value="login"
+                        class="in-btn signIn-btn"
+                        onclick="showLoading()"
+                        aria-label="Sign-in options">
+                    Sign in
+                </button>
+            </div>
+        </form>
+    }
 </div>

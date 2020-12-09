@@ -1,7 +1,20 @@
 ﻿@if (ViewContext.ModelState.IsValid == false)
 {
     <div class="alert alert-danger">
-        <strong>Error</strong>
-        <div asp-validation-summary="All" class="danger"></div>
+        <div asp-validation-summary="All" class="col-md-24 error ext-error"></div>
     </div>
+    <style>
+        .validation-summary-errors{
+            text-align: initial;
+        }
+        .error{
+            color: #e81123;
+            padding: 0px 44px !important; 
+        }
+        ul {
+            list-style: none;
+            margin-top: 5px;
+            margin-left: -19px;
+        }
+    </style>
 }

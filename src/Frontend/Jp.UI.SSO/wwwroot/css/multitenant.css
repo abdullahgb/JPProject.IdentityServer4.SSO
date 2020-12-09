@@ -1,0 +1,360 @@
+﻿html {
+    font-size: 100%;
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    letter-spacing: normal;
+    direction: ltr;
+    font-family: "Segoe UI Webfont", -apple-system, "Helvetica Neue", "Lucida Grande", "Roboto", "Ebrima", "Nirmala UI", "Gadugi", "Segoe Xbox Symbol", "Segoe UI Symbol", "Meiryo UI", "Khmer UI", "Tunga", "Lao UI", "Raavi", "Iskoola Pota", "Latha", "Leelawadee", "Microsoft YaHei UI", "Microsoft JhengHei UI", "Malgun Gothic", "Estrangelo Edessa", "Microsoft Himalaya", "Microsoft New Tai Lue", "Microsoft PhagsPa", "Microsoft Tai Le", "Microsoft Yi Baiti", "Mongolian Baiti", "MV Boli", "Myanmar Text", "Cambria Math";
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 400;
+    font-size: .9375rem;
+    line-height: 1.25rem;
+    padding-bottom: .227px;
+    padding-top: .227px;
+    color: #000;
+    background-color: #fff;
+}
+
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.text-primary {
+    color: #0067b6;
+}
+
+a {
+    text-decoration: none;
+    color: #0067b6;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
+.justify-content-end {
+    justify-content: flex-end !important;
+}
+
+.vertical-centered {
+    padding: 40px 0px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    max-width: 440px;
+    margin-bottom: 28px;
+    background-color: #fff;
+    -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    min-width: 370px;
+    min-height: 250px;
+    overflow: hidden;
+}
+
+html.no-flexbox,
+.no-flexbox body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.no-flexbox .vertical-centered {
+    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -150px;
+    margin-left: -25%;
+}
+
+.css-mine {
+    position: fixed;
+    bottom: 0;
+}
+
+.inherit {
+    display: inherit;
+    cursor: pointer;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.mt--1 {
+    margin-top: -1px !important;
+}
+
+.ml-0 {
+    margin-left: 0px !important;
+}
+
+.mr-3 {
+    margin-right: 3px;
+}
+
+.mr-7 {
+    margin-right: 7px;
+}
+
+.mr-10 {
+    margin-right: 10px;
+}
+
+.p-12-0 {
+    padding: 12px 0px !important;
+}
+
+.p-12-44 {
+    padding: 12px 44px !important;
+}
+
+.p-0-44 {
+    padding: 0px 44px !important;
+}
+
+.mr-12 {
+    margin-right: 12px;
+}
+
+.mt-35 {
+    margin-top: 35px !important;
+}
+
+.pt-10 {
+    padding-top: 10px !important;
+}
+
+.pt-15 {
+    padding-top: 15px !important;
+}
+
+
+.py-7 {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.font-size-12 {
+    font-size: 12px !important;
+}
+
+.font-size-13 {
+    font-size: 13px !important;
+}
+
+.font-size-14 {
+    font-size: 14px !important;
+}
+
+.company_Logo {
+    max-width: 108px;
+    width: 108px;
+    height: 24px;
+}
+
+.vertical-centered h1 {
+    padding: 12px 44px !important;
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 300;
+    line-height: 1.75rem;
+    padding-bottom: 2.3632px;
+    padding-top: 2.3632px;
+    color: #1b1b1b;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 0;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-family: "Segoe UI", "Helvetica Neue", "Lucida Grande", "Roboto", "Ebrima", "Nirmala UI", "Gadugi", "Segoe Xbox Symbol", "Segoe UI Symbol", "Meiryo UI", "Khmer UI", "Tunga", "Lao UI", "Raavi", "Iskoola Pota", "Latha", "Leelawadee", "Microsoft YaHei UI", "Microsoft JhengHei UI", "Malgun Gothic", "Estrangelo Edessa", "Microsoft Himalaya", "Microsoft New Tai Lue", "Microsoft PhagsPa", "Microsoft Tai Le", "Microsoft Yi Baiti", "Mongolian Baiti", "MV Boli", "Myanmar Text", "Cambria Math";
+}
+
+.userEmail {
+    cursor: pointer;
+    background-color: #fff;
+    padding: 12px 44px;
+}
+
+    .userEmail:hover {
+        outline: #000 dashed 1px;
+        background: #ccc;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+.userInput {
+    background-color: #fff;
+    padding: 0px 44px;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(0.50rem + 1rem + 0px) !important;
+    padding: 0rem 0rem;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #3F4254;
+    background-color: #ffffff;
+    background-clip: padding-box;
+    border: none;
+    border-bottom: solid 1px #969696;
+    border-radius: 0rem;
+    box-shadow: none;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input.form-control:active,
+input.form-control:focus {
+    border: none;
+    border-bottom: solid 1px #959596;
+    outline: none !important;
+}
+
+.in-btn {
+    min-width: 50px;
+    padding: 7px 19px 7px 19px;
+    position: relative;
+    max-width: 100px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle;
+    text-overflow: ellipsis;
+    border-color: transparent;
+    border: none;
+}
+
+.backbtn {
+    min-height: 24px;
+    width: 24px;
+    min-width: 24px;
+    float: left;
+    padding: 0;
+    background-color: #fff;
+    border-width: 0;
+    border-radius: 12px;
+    margin-right: 2px;
+    margin-top: 5px;
+    line-height: 12px;
+}
+
+    .backbtn:hover {
+        background-color: #e6e6e6;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+.back-btn {
+    color: #000;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.signIn-btn {
+    color: #fff;
+    border-color: #0067b8;
+    background-color: #0067b8;
+    display: block;
+}
+
+
+
+.signin-slider {
+    position: absolute;
+    width: 1000px;
+    height: 3px;
+    overflow-x: hidden;
+    top: 0;
+}
+
+.CsLine {
+    position: absolute;
+    opacity: 0.4;
+    background: #4a8df8;
+    width: 150%;
+    height: 5px;
+}
+
+.subCsLine {
+    position: absolute;
+    background: #4a8df8;
+    height: 5px;
+}
+
+.inc {
+    animation: increase 2s infinite;
+}
+
+.dec {
+    animation: decrease 2s 0.5s infinite;
+}
+.max-h-75px {
+    max-height: 75px !important;
+}
+.max-h-75px {
+    min-height: 75px;
+    max-height: 75px;
+}
+
+@keyframes increase {
+    from {
+        left: -5%;
+        width: 5%;
+    }
+
+    to {
+        left: 130%;
+        width: 100%;
+    }
+}
+
+@keyframes decrease {
+    from {
+        left: -80%;
+        width: 80%;
+    }
+
+    to {
+        left: 110%;
+        width: 10%;
+    }
+}
+
+
+@media screen and (max-width: 992px) {
+    .vertical-centered {
+        /*margin: 2em !important;*/
+    }
+}
