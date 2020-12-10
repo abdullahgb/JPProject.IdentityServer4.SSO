@@ -35,7 +35,7 @@ namespace Jp.UI.SSO.Util
                     },
                     AllowedCorsOrigins = { configuration.GetValue<string>("ApplicationSettings:IS4AdminUi")},
                     PostLogoutRedirectUris = {$"{configuration["ApplicationSettings:IS4AdminUi"]}",},
-                    LogoUri = "https://jpproject.blob.core.windows.net/images/jplogo.png",
+                    LogoUri = "https://localhost:5000/storage/images/Untitled.png",
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,

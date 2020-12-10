@@ -160,7 +160,9 @@ html.no-flexbox,
 .pt-15 {
     padding-top: 15px !important;
 }
-
+.pr-0 {
+    padding-right: 0 !important;
+}
 
 .py-7 {
     padding-top: 7px;
@@ -319,6 +321,67 @@ input.form-control:focus {
 
 .dec {
     animation: decrease 2s 0.5s infinite;
+}
+.accordion {
+    background-color: #fff;
+    color: #444;
+    cursor: pointer;
+    padding: 5px 15px;
+    padding-left: 10px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+
+.active,
+.accordion:hover {
+    //background-color: #ccc;
+}
+
+.accordion:after {
+    content: '\203A';
+    color: #777;
+    font-weight: bold;
+    float: left;
+    margin-left: -9px;
+    margin-right: 10px;
+}
+
+.active:after {
+    content: "\2212";
+}
+
+.panel {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+.panel p {
+    margin-top: 0px !important;
+}
+
+.panel li {
+    list-style-type: none !important;
+    margin-top: 3px !important;
+    margin-bottom: 3px !important;
+}
+
+.font-weight-bold {
+    font-weight: bold !important;
+}
+
+.marginB-40 {
+    margin-bottom: 40px !important;
+}
+
+.text-justify {
+    text-align: justify;
 }
 .max-h-75px {
     max-height: 75px !important;

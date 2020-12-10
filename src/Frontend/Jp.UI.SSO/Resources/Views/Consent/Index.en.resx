@@ -130,16 +130,16 @@
     <value>is requesting your permission</value>
   </data>
   <data name="Body-No-Do-Not-Allow" xml:space="preserve">
-    <value>No Do Not Allow</value>
+    <value>Don't</value>
   </data>
   <data name="Body-Personal-information" xml:space="preserve">
     <value>Personal information</value>
   </data>
   <data name="Body-Remember-My-Decision" xml:space="preserve">
-    <value>Remember My Decision</value>
+    <value>Remember Decision</value>
   </data>
   <data name="Body-Yes-Allow" xml:space="preserve">
-    <value>Yes Allow</value>
+    <value>Allow</value>
   </data>
   <data name="Menu-Authorize-Application" xml:space="preserve">
     <value>Authorize Application</value>
