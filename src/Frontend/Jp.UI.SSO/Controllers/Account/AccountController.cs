@@ -31,6 +31,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Jp.Api.Management.Controllers;
+using Jp.Api.Management.Interfaces;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Jp.UI.SSO.Controllers.Account
@@ -49,6 +51,8 @@ namespace Jp.UI.SSO.Controllers.Account
         private readonly IConfiguration _configuration;
         private readonly IUserManageAppService _userManageAppService;
         private readonly ISystemUser _user;
+        private readonly IReCaptchaService _reCaptchaService;
+        private readonly IMediatorHandler _mediator;
         private readonly ILogger<AccountController> _logger;
         private readonly DomainNotificationHandler _notifications;
 
@@ -66,6 +70,8 @@ namespace Jp.UI.SSO.Controllers.Account
             IConfiguration configuration,
             IUserManageAppService userManageAppService,
             ISystemUser user,
+            IReCaptchaService reCaptchaService,
+            IMediatorHandler mediator,
             ILogger<AccountController> logger)
         {
             Bus = bus;
@@ -80,6 +86,8 @@ namespace Jp.UI.SSO.Controllers.Account
             _configuration = configuration;
             _userManageAppService = userManageAppService;
             _user = user;
+            _reCaptchaService = reCaptchaService;
+            _mediator = mediator;
             _logger = logger;
             _notifications = (DomainNotificationHandler)notifications;
         }
@@ -103,10 +111,15 @@ namespace Jp.UI.SSO.Controllers.Account
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register(string returnUrl = "")
         {
-            var url = $"{_configuration.GetValue<string>("ApplicationSettings:UserManagementURL")}/register";
-            return Redirect(url);
+            //var url = $"{_configuration.GetValue<string>("ApplicationSettings:UserManagementURL")}/register";
+            //return Redirect(url);
+            ViewBag.returnUrl = returnUrl;
+            return View(new RegisterViewModel
+            {
+                ReturnUrl = returnUrl
+            });
         }
 
         public IActionResult ForgotPassword()
@@ -159,6 +172,42 @@ namespace Jp.UI.SSO.Controllers.Account
 
 
 
+        }
+        /// <summary>
+        /// Route to Sign-up
+        /// </summary>
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                // something went wrong, show form with error
+                return View();
+            }
+            //var response = await _signUpController.Register(vm);
+
+            if (await _reCaptchaService.IsCaptchaEnabled())
+            {
+                var captchaSucces = await _reCaptchaService.IsCaptchaPassed();
+                if (!captchaSucces)
+                {
+                    await _mediator.RaiseEvent(new DomainNotification("Recatcha", "ReCaptcha failed"));
+                    ModelState.AddModelError("Error", string.Join(" ", _notifications.GetNotifications().Select(a => $"{a.Key}: {a.Value}")));
+                    return View();
+                }
+            }
+
+            if (vm.ContainsFederationGateway())
+                await _userAppService.RegisterWithPasswordAndProvider(vm);
+            else
+                await _userAppService.Register(vm);
+
+            vm.ClearSensitiveData();
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            await HttpContext.SignInAsync(user.Id,new Claim("profileIncomplete",""));
+            return vm.ReturnUrl.IsNullOrEmpty() ?
+                Redirect("~/Grants") :
+                Redirect(vm.ReturnUrl);
         }
 
         private async Task<IActionResult> LoginByLdap(LoginInputModel model, AuthorizationRequest context)

@@ -9,9 +9,11 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Jp.Database.Context;
 using Jp.UI.SSO.Models;
+using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MultiTenancyServer;
 
 namespace Jp.UI.SSO.Controllers.Tenants
 {
@@ -20,12 +22,14 @@ namespace Jp.UI.SSO.Controllers.Tenants
         private readonly SsoContext _context;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
+        private readonly TenantManager<Tenant> _tenantManager;
 
-        public TenantsController(SsoContext context, IIdentityServerInteractionService interaction, IClientStore clientStore)
+        public TenantsController(SsoContext context, IIdentityServerInteractionService interaction, IClientStore clientStore, TenantManager<Tenant> tenantManager)
         {
             _context = context;
             _interaction = interaction;
             _clientStore = clientStore;
+            _tenantManager = tenantManager;
         }
         public async Task<IActionResult> Index(string returnUrl = "")
         {
@@ -66,6 +70,34 @@ namespace Jp.UI.SSO.Controllers.Tenants
             await HttpContext.SignInAsync(User.Claims.Single(r => r.Type == "sub").Value, claims.ToArray());
             return Redirect(returnUrl);
         }
-        
+
+        [HttpGet]
+        public async Task<IActionResult> Onboarding(string returnUrl = "")
+        {
+            return View(new RegisterTenantViewModel{ReturnUrl = returnUrl});
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Onboarding(RegisterTenantViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                // something went wrong, show form with error
+                return View();
+            }
+            if (await _tenantManager.Tenants.AnyAsync(x =>
+                x.CanonicalName.Trim().ToLower().Equals(vm.Name.Trim().ToLower())))
+            {
+                ModelState.AddModelError("Conflict","Business name already exist");
+                return View();
+            }
+            var tenant = new Tenant(vm.Name,vm.Name);
+            await _tenantManager.CreateAsync(tenant);
+
+            return vm.ReturnUrl.IsNullOrEmpty() ?
+                Redirect("~/Grants") :
+                Redirect(vm.ReturnUrl);
+        }
+
     }
 }

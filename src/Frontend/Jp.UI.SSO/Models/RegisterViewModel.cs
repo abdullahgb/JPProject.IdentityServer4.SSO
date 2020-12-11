@@ -9,5 +9,6 @@ namespace Jp.UI.SSO.Models
         [Display(Name = "Accept Agreement")]
         [Range(typeof(bool), "true", "true", ErrorMessage = "Accept Agreement must be checked.")]
         public bool Accept { get; set; }
+        public string ReturnUrl { get; set; }
     }
 }

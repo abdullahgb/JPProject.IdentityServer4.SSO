@@ -1,0 +1,83 @@
+﻿@model Jp.UI.SSO.Models.RegisterTenantViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject IViewLocalizer Localizer
+@{
+    Layout = "../Shared/_LayoutExt3.cshtml";
+}
+
+<!--start::create an account -->
+<div class="vertical-centered">
+    <!--start::Loading -->
+    <div id="loading" style="display: none" class="signin-slider">
+        <div class="CsLine"></div>
+        <div class="subCsLine inc"></div>
+        <div class="subCsLine dec"></div>
+    </div>
+    <!--end::Loading -->
+    <div class="company_Logo p-12-44">
+        <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
+    </div>
+
+    <h1>Tell us about your business </h1>
+    @await Html.PartialAsync("_ValidationSummary")
+    <form method="post" asp-action="Onboarding">
+        <input asp-for="ReturnUrl" type="hidden" />
+        <div class="d-flex align-items-center flex-column userInput">
+            <input class="form-control" type="text" placeholder="Business Name" asp-for=Name autofocus tabindex="1" />
+            <br />
+            <select class="type-select" placeholder="Business Type" asp-for="Type">
+                <option value="" disabled selected hidden>Business Type</option>
+                <option value="1">General</option>
+                <option value="2">Other</option>
+            </select>
+            <br/>
+            <select class="type-select" placeholder="Business Type" asp-for="Country">
+                <option value="" disabled selected hidden>Business Country</option>
+                <option value="us">United States</option>
+                <option value="pk">Canada</option>
+                <option value="pk">Pakistan</option>
+            </select>
+        </div>
+        <div class="d-flex align-items-center justify-content-end p-0-44 font-size-13 mt-35">
+            <button type="submit"
+                    tabindex="6"
+                    onclick="showLoading()"
+                    class="in-btn signIn-btn"
+                    aria-label="Sign-in options">
+                Complete
+            </button>
+        </div>
+    </form>
+
+</div>
+<style>
+    .type-select {
+        border: 0;
+        border-bottom: solid 1px #969696;
+        width: 100%;
+        padding-left: 0px !important;
+       /* -webkit-appearance: none;
+        -moz-appearance: none;*/
+        text-indent: 0.5px;
+        padding-bottom: 3px;
+        display: block;
+        width: 100%;
+        height: calc(0.50rem + 1rem + 0px) !important;
+        padding: 0rem 0rem;
+        font-size: 14px;
+        color: #717171;
+    }
+    .form-control {
+    text-indent: 5px;
+    }
+    .type-select:first-child  {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        text-indent: 0.5px;
+    }
+        .p-0-44 {
+        padding: 10px 40px !important;
+    }
+</style>

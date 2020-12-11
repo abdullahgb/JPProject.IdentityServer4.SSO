@@ -23,6 +23,7 @@ namespace Jp.UI.SSO.Configuration
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(UserIdentity user)
         {
             var identity = await base.GenerateClaimsAsync(user);
+            
             var claims = new List<Claim>();
 
             claims.AddIfDontExist(new Claim(JwtClaimTypes.Name, user.UserName));

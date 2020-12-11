@@ -26,6 +26,9 @@ namespace Jp.Database.Identity
             var identity = await base.GenerateClaimsAsync(user);
             var claims = new List<Claim>();
 
+            // Check if Tenant is not created
+            if (!user.ProfileCompleted) claims.Add(new Claim("profileIncomplete", ""));
+
             AddIfDontExist(claims,new Claim(JwtClaimTypes.Name, user.UserName));
             AddIfDontExist(claims,new Claim(JwtClaimTypes.GivenName, user.UserName));
             var roles = await UserManager.GetRolesAsync(user);

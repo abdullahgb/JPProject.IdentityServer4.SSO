@@ -56,9 +56,8 @@ namespace Jp.UI.SSO
                 {
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     options.AllowInputFormatterExceptionMessages = true;
-                });
-            services.AddRazorPages();
-
+                }).AddControllersAsServices();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;

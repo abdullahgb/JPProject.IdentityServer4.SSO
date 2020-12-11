@@ -20,11 +20,17 @@ namespace Jp.UI.SSO.Configuration
             var response = await base.ProcessInteractionAsync(request, consent);
             if (response.IsConsent || response.IsLogin || response.IsError)
                 return response;
+            if (request.Subject.HasClaim(c => c.Type == "profileIncomplete"))
+                return new InteractionResponse
+                {
+                    RedirectUrl = "/Tenants/Onboarding"
+                };
             if (!request.Subject.HasClaim(c => c.Type == "tid" && c.Value != "0"))
                 return new InteractionResponse
                 {
                     RedirectUrl = "/Tenants"
                 };
+            
             return new InteractionResponse();
         }
     }
