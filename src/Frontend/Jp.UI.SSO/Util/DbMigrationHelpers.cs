@@ -182,9 +182,37 @@ namespace Jp.UI.SSO.Util
         {
 
             // Create admin role
-            if (!await roleManager.RoleExistsAsync("Administrator"))
+            if (!await roleManager.RoleExistsAsync(Roles.Admin))
             {
-                var role = new RoleIdentity { Name = "Administrator" };
+                var role = new RoleIdentity { Name = Roles.Admin };
+
+                await roleManager.CreateAsync(role);
+            }
+            // Create owner role
+            if (!await roleManager.RoleExistsAsync(Roles.Owner))
+            {
+                var role = new RoleIdentity { Name = Roles.Owner };
+
+                await roleManager.CreateAsync(role);
+            }
+            // Create manager role
+            if (!await roleManager.RoleExistsAsync(Roles.Manager))
+            {
+                var role = new RoleIdentity { Name = Roles.Manager };
+
+                await roleManager.CreateAsync(role);
+            }
+            // Create worker role
+            if (!await roleManager.RoleExistsAsync(Roles.Worker))
+            {
+                var role = new RoleIdentity { Name = Roles.Worker };
+
+                await roleManager.CreateAsync(role);
+            }
+            // Create user role
+            if (!await roleManager.RoleExistsAsync(Roles.User))
+            {
+                var role = new RoleIdentity { Name = Roles.User };
 
                 await roleManager.CreateAsync(role);
             }
@@ -197,7 +225,8 @@ namespace Jp.UI.SSO.Util
                 UserName = Users.GetUser(configuration),
                 Email = Users.GetEmail(configuration),
                 EmailConfirmed = true,
-                LockoutEnd = null
+                LockoutEnd = null,
+                ProfileCompleted = true
             };
 
             var result = await userManager.CreateAsync(user, Users.GetPassword(configuration));

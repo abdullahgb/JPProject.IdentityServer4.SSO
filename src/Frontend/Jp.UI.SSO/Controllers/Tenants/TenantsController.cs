@@ -8,7 +8,10 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Jp.Database.Context;
+using Jp.Database.Identity;
 using Jp.UI.SSO.Models;
+using Jp.UI.SSO.Util;
+using JPProject.Domain.Core.Util;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,13 +26,16 @@ namespace Jp.UI.SSO.Controllers.Tenants
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
         private readonly TenantManager<Tenant> _tenantManager;
+        private readonly IdentityUserManager _userManager;
 
-        public TenantsController(SsoContext context, IIdentityServerInteractionService interaction, IClientStore clientStore, TenantManager<Tenant> tenantManager)
+        public TenantsController(SsoContext context, IIdentityServerInteractionService interaction,
+            IClientStore clientStore, TenantManager<Tenant> tenantManager, IdentityUserManager userManager)
         {
             _context = context;
             _interaction = interaction;
             _clientStore = clientStore;
             _tenantManager = tenantManager;
+            _userManager = userManager;
         }
         public async Task<IActionResult> Index(string returnUrl = "")
         {
@@ -74,6 +80,10 @@ namespace Jp.UI.SSO.Controllers.Tenants
         [HttpGet]
         public async Task<IActionResult> Onboarding(string returnUrl = "")
         {
+            if (await CheckBusinessAlreadyCreatedByUser(User.GetSubjectId()))
+            {
+                return BadRequest("Onboarding Already Completed");
+            }
             return View(new RegisterTenantViewModel{ReturnUrl = returnUrl});
         }
 
@@ -85,19 +95,40 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 // something went wrong, show form with error
                 return View();
             }
+
+           
             if (await _tenantManager.Tenants.AnyAsync(x =>
                 x.CanonicalName.Trim().ToLower().Equals(vm.Name.Trim().ToLower())))
             {
                 ModelState.AddModelError("Conflict","Business name already exist");
                 return View();
             }
-            var tenant = new Tenant(vm.Name,vm.Name);
-            await _tenantManager.CreateAsync(tenant);
 
-            return vm.ReturnUrl.IsNullOrEmpty() ?
+            var newTenant = new Tenant(vm.Name,vm.Name);
+            await _tenantManager.CreateAsync(newTenant);
+
+            var userId = User.GetSubjectId();
+            var user =  await _userManager.FindByIdAsync(userId);
+            await _userManager.AddToRolesAsync(user, newTenant, new[] {Roles.Owner});
+            user.ProfileCompleted = true;
+            await _userManager.UpdateAsync(user);
+            var claims = User.Claims;
+            claims = claims.Where(x => x.Type != ClaimExtensions.ProfileInComplete);
+            claims = claims.Concat(new[]
+            {
+                new Claim("tid", newTenant.Id.ToString()), new Claim("tname", newTenant.CanonicalName)
+            });
+            await HttpContext.SignInAsync(User.GetSubjectId(), claims.ToArray());
+            return IEnumerableExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);
         }
+
+        private Task<bool> CheckBusinessAlreadyCreatedByUser(string userId)
+            => (from userRole in _context.UserRoles
+                join tenant in _context.Tenants on userRole.TenantId equals tenant.Id
+                where userRole.UserId == userId
+                select tenant).AnyAsync();
 
     }
 }

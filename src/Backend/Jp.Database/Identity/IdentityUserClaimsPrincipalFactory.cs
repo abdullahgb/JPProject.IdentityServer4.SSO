@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
+using JPProject.Domain.Core.Util;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -27,7 +28,7 @@ namespace Jp.Database.Identity
             var claims = new List<Claim>();
 
             // Check if Tenant is not created
-            if (!user.ProfileCompleted) claims.Add(new Claim("profileIncomplete", ""));
+            if (!user.ProfileCompleted) claims.Add(new Claim(ClaimExtensions.ProfileInComplete, ""));
 
             AddIfDontExist(claims,new Claim(JwtClaimTypes.Name, user.UserName));
             AddIfDontExist(claims,new Claim(JwtClaimTypes.GivenName, user.UserName));
