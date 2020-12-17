@@ -121,7 +121,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
             await _userManager.UpdateAsync(user);
            
             // Publish event so other services can be notified
-            await _eventBus.Publish(new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.DisplayName));
+            await _eventBus.Publish(new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName,user.Email));
             await transaction.CommitAsync();
             // Sig-in with new tenant claims
             var claims = User.Claims;

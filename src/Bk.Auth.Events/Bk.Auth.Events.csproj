@@ -1,7 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>1.0.1</Version>
+    <Product>Bk.Auth.Events</Product>
+    <Description>asdf</Description>
+    <PackageId>Bk.Auth.Events</PackageId>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageReleaseNotes>asf</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Company>Bk.Auth.Events</Company>
+    <Authors>Bk.Auth.Events</Authors>
   </PropertyGroup>
 
   <ItemGroup>
