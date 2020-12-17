@@ -1,6 +1,13 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using Bk.Auth.Events;
+using Bk.Common.EventBus;
+using Bk.EventBus;
+using Common.Rebus;
+using Common.Rebus.Configurations;
 using Hellang.Middleware.ProblemDetails;
 using IdentityServer4.Services;
 using Jp.Api.Management.Configuration;
@@ -124,7 +131,9 @@ namespace Jp.UI.SSO
             ConfigureMultiTenantServices(services);
             ConfigureApiManagementServices(services);
             ConfigureIdentityServices(services);
-        }
+            services.AddRebusEventBus(Array.Empty<Type>(), new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")));
+            services.AddScoped<IEventBus, EventBus>();
+    }
 
         public void ConfigureIdentityServices(IServiceCollection services)
         {
@@ -196,7 +205,8 @@ namespace Jp.UI.SSO
             fordwardedHeaderOptions.KnownProxies.Clear();
 
             app.UseForwardedHeaders(fordwardedHeaderOptions);
-
+            // Configure event bus
+            app.UseCustomRebus();
             app.UseIdentityServer();
             app.UseLocalization();
             app.UseDefaultCors();

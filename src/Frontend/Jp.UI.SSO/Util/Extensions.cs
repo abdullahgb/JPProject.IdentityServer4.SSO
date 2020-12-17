@@ -27,6 +27,15 @@ namespace Jp.UI.SSO.Util
 
             return false;
         }
+        public static string ToDotNotation(this string val)
+        {
+            if (!string.IsNullOrWhiteSpace(val))
+            {
+                return string.Concat(val!.Select(x => char.IsUpper(x) ? "." + x : x.ToString()));
+            }
+
+            return string.Empty;
+        }
 
         public static bool IsBehindReverseProxy(this IWebHostEnvironment host, IConfiguration configuration)
         {

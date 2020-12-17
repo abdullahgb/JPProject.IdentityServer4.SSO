@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Bk.Auth.Events;
+using Bk.Common.EventBus;
 using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
@@ -27,15 +29,17 @@ namespace Jp.UI.SSO.Controllers.Tenants
         private readonly IClientStore _clientStore;
         private readonly TenantManager<Tenant> _tenantManager;
         private readonly IdentityUserManager _userManager;
+        private readonly IEventBus _eventBus;
 
         public TenantsController(SsoContext context, IIdentityServerInteractionService interaction,
-            IClientStore clientStore, TenantManager<Tenant> tenantManager, IdentityUserManager userManager)
+            IClientStore clientStore, TenantManager<Tenant> tenantManager, IdentityUserManager userManager,IEventBus eventBus)
         {
             _context = context;
             _interaction = interaction;
             _clientStore = clientStore;
             _tenantManager = tenantManager;
             _userManager = userManager;
+            _eventBus = eventBus;
         }
         public async Task<IActionResult> Index(string returnUrl = "")
         {
@@ -103,22 +107,30 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 ModelState.AddModelError("Conflict","Business name already exist");
                 return View();
             }
-
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            // Create new tenant
             var newTenant = new Tenant(vm.Name,vm.Name);
             await _tenantManager.CreateAsync(newTenant);
 
-            var userId = User.GetSubjectId();
-            var user =  await _userManager.FindByIdAsync(userId);
+            var ownerId = User.GetSubjectId();
+
+            // Add Owner role to user
+            var user =  await _userManager.FindByIdAsync(ownerId);
             await _userManager.AddToRolesAsync(user, newTenant, new[] {Roles.Owner});
-            user.ProfileCompleted = true;
+            user.CompleteProfile();
             await _userManager.UpdateAsync(user);
+           
+            // Publish event so other services can be notified
+            await _eventBus.Publish(new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.DisplayName));
+            await transaction.CommitAsync();
+            // Sig-in with new tenant claims
             var claims = User.Claims;
-            claims = claims.Where(x => x.Type != ClaimExtensions.ProfileInComplete);
-            claims = claims.Concat(new[]
+            claims = new List<Claim>(claims.Where(x => x.Type != ClaimExtensions.ProfileInComplete))
             {
-                new Claim("tid", newTenant.Id.ToString()), new Claim("tname", newTenant.CanonicalName)
-            });
-            await HttpContext.SignInAsync(User.GetSubjectId(), claims.ToArray());
+                new Claim("tid", newTenant.Id),
+                new Claim("tname", newTenant.CanonicalName)
+            };
+            await HttpContext.SignInAsync(ownerId, claims.ToArray());
             return IEnumerableExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);
