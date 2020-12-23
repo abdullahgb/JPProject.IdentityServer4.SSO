@@ -49,7 +49,7 @@ namespace Jp.Database.Identity
             CancellationToken cancellationToken = default)
             {
                 var query = from userRole in Context.Set<UserRoleIdentity>()
-                    join role in Context.Set<IdentityRole>() on userRole.RoleId equals role.Id
+                    join role in Context.Set<RoleIdentity>() on userRole.RoleId equals role.Id
                     where userRole.UserId.Equals(user.Id) && userRole.TenantId.Equals(tenant.Id)
                     select role.Name;
 

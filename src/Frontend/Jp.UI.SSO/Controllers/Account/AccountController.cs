@@ -182,7 +182,7 @@ namespace Jp.UI.SSO.Controllers.Account
             if (!ModelState.IsValid)
             {
                 // something went wrong, show form with error
-                return View();
+                return View(vm);
             }
             //var response = await _signUpController.Register(vm);
 
@@ -195,6 +195,14 @@ namespace Jp.UI.SSO.Controllers.Account
                     ModelState.AddModelError("Error", string.Join(" ", _notifications.GetNotifications().Select(a => $"{a.Key}: {a.Value}")));
                     return View();
                 }
+            }
+
+            var userFind = await _userManager.FindByEmailAsync(vm.Email);
+            if (userFind!=null)
+            {
+                await _mediator.RaiseEvent(new DomainNotification("Email", "Email already exist"));
+                ModelState.AddModelError("Error", "This email is already registered");
+                return View(vm);
             }
 
             if (vm.ContainsFederationGateway())

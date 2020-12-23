@@ -11,6 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Bk.Common.Objects;
+using Bk.Common.Strings;
+using Jp.Database.Identity;
+using JPProject.Domain.Core.Util;
+using Microsoft.AspNetCore.Http;
+using MultiTenancyServer;
 
 namespace Jp.UI.SSO.Configuration
 {
@@ -18,30 +24,31 @@ namespace Jp.UI.SSO.Configuration
     {
         protected UserManager<UserIdentity> UserManager;
         private readonly ILogger<DefaultProfileService> Logger;
-        private readonly IUserClaimsPrincipalFactory<UserIdentity> _claimsFactory;
+        private readonly IdentityUserClaimsPrincipalFactory _claimsFactory;
         private readonly IResourceStore _resourceStore;
-
+        private readonly IHttpContextAccessor _context;
+        private readonly ITenancyContext<Tenant> _tenancyContext;
         public SsoProfileService(
             UserManager<UserIdentity> userManager,
             ILogger<DefaultProfileService> logger,
-            IUserClaimsPrincipalFactory<UserIdentity> claimsFactory,
-            IResourceStore resourceStore)
+           IdentityUserClaimsPrincipalFactory claimsFactory,
+            IResourceStore resourceStore, IHttpContextAccessor context,
+            ITenancyContext<Tenant> tenancyContext)
         {
             UserManager = userManager;
             Logger = logger;
             _claimsFactory = claimsFactory;
             // IResourceStore will be cached in production, while IResourceRepo won't
             _resourceStore = resourceStore;
+            _context = context;
+            _tenancyContext = tenancyContext;
         }
 
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             // Get user data
             var user = await UserManager.GetUserAsync(context.Subject);
-
-            // Load user claims from ASP.NET Identity
-            var principal = await _claimsFactory.CreateAsync(user);
-
+            var principal = await _claimsFactory.CreateAsync(user, GetTenantFromContext(context.Subject));
             var claimsUser = principal.Claims.ToList();
             var subjectClaims = context.Subject.Claims.ToList();
 
@@ -60,6 +67,12 @@ namespace Jp.UI.SSO.Configuration
             // Sometimes IdentityResources are specified at UserClaims in ProtectedResource. Then we include all related claims to RequestedClaims
             var resources = await _resourceStore.GetAllResourcesAsync();
             var usersClaimsToGoWithin = GetIdentityResourcesToIncludeInRequestedClaims(context, resources);
+            if (context.Subject.ContainsTenant())
+            {
+                usersClaimsToGoWithin.Add("tid");
+                usersClaimsToGoWithin.Add("tname");
+            }
+
             usersClaimsToGoWithin.Merge(context.RequestedClaimTypes);
             context.RequestedClaimTypes = usersClaimsToGoWithin;
 
@@ -84,7 +97,35 @@ namespace Jp.UI.SSO.Configuration
             return usersClaimsToGoWithin;
         }
 
+        private string GetTenantNameFromAcr(IsActiveContext context)
+        {
+            string tenantName;
+            var tenantIdClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == "tname");
+            tenantName = tenantIdClaim?.Value;
+            if (!tenantName.IsNull()) return tenantName;
+            tenantName = _context.HttpContext.Request.Query["acr_values"].ToString().Replace("tenant:", "");
+            return tenantName;
+        }
+        private string GetTenantNameFromContext(ClaimsPrincipal subject)
+        {
+            var tenantName = _tenancyContext.Tenant?.CanonicalName;
 
+            if (!tenantName.IsNullOrEmpty())
+                return tenantName;
+
+            tenantName = subject.GetTenantName();
+            return tenantName;
+        }
+        private Tenant GetTenantFromContext(ClaimsPrincipal subject)
+        {
+            var tenant = _tenancyContext.Tenant;
+
+            if (!tenant.IsObjNull())
+                return tenant;
+
+            tenant = subject.GetTenant();
+            return tenant;
+        }
         public async Task IsActiveAsync(IsActiveContext context)
         {
             var user = await UserManager.GetUserAsync(context.Subject);
@@ -93,7 +134,19 @@ namespace Jp.UI.SSO.Configuration
             var isBlocked = user.LockoutEnabled && user.LockoutEnd.GetValueOrDefault(DateTimeOffset.UtcNow.UtcDateTime.Date) > DateTimeOffset.UtcNow.UtcDateTime;
             if (isBlocked)
                 isBlocked = await UserManager.IsInRoleAsync(user, "Administrator");
-
+            if (context.Caller == "AuthorizeEndpoint")
+            {
+                var acrTenant = GetTenantNameFromAcr(context);
+                var contextTenant = GetTenantNameFromContext(context.Subject);
+                if (user != null && acrTenant == contextTenant)
+                {
+                    context.IsActive = !isBlocked;
+                }
+                else
+                {
+                    context.IsActive = false;
+                }
+            }
             context.IsActive = !isBlocked;
         }
     }

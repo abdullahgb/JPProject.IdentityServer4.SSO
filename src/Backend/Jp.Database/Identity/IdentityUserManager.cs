@@ -16,7 +16,7 @@ namespace Jp.Database.Identity
         {
             _store = store;
         }
-        public Task<IList<string>> GetRolesAsync(string userId, int tenantId)
+        public Task<IList<string>> GetRolesAsync(string userId, string tenantId)
         {
             var user = _store.Context.Set<UserIdentity>().Find(userId);
             var tenant = _store.Context.Set<Tenant>().Find(tenantId);

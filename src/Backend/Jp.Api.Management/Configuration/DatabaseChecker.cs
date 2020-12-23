@@ -13,7 +13,6 @@ namespace Jp.Api.Management.Configuration
         {
             var services = serviceScope.ServiceProvider;
             var ssoContext = services.GetRequiredService<SsoContext>();
-
             Log.Information("Testing conection with database");
             await DbHealthChecker.TestConnection(ssoContext);
             Log.Information("Connection successfull");

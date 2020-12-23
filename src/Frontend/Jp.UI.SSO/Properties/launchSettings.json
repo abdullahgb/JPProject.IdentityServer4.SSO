@@ -17,7 +17,6 @@
     "Jp.UI.SSO": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "https://localhost:5000",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "APPINSIGHTS_INSTRUMENTATIONKEY": "205fabcd-09ee-46f5-bb74-95780fc873da"
       },

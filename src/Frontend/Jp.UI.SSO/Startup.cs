@@ -55,6 +55,7 @@ namespace Jp.UI.SSO
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.AddControllersWithViews()
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, opts => { opts.ResourcesPath = "Resources"; })
                 .AddDataAnnotationsLocalization()
@@ -133,7 +134,8 @@ namespace Jp.UI.SSO
             ConfigureIdentityServices(services);
             services.AddRebusEventBus(Array.Empty<Type>(), new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")));
             services.AddScoped<IEventBus, EventBus>();
-    }
+            
+        }
 
         public void ConfigureIdentityServices(IServiceCollection services)
         {
@@ -149,8 +151,7 @@ namespace Jp.UI.SSO
             services.AddMultiTenancy<Tenant, string>()
                 // Add one or more IRequestParser (MultiTenancyServer.AspNetCore).
                 .AddSubdomainParser(".tenants.localhost")
-                .AddPathParser("/tenants/")
-                .AddClaimParser("tid")
+                .AddClaimParser("tname")
                 .AddEntityFrameworkStore<SsoContext, Tenant, string>();
         }
 
@@ -207,6 +208,7 @@ namespace Jp.UI.SSO
             app.UseForwardedHeaders(fordwardedHeaderOptions);
             // Configure event bus
             app.UseCustomRebus();
+            app.UseMultiTenancy<Tenant>();
             app.UseIdentityServer();
             app.UseLocalization();
             app.UseDefaultCors();
@@ -230,6 +232,9 @@ namespace Jp.UI.SSO
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+            Log.Information($"Environment => {_env.EnvironmentName}");
+            Log.Information($"Auth Db Connection => {DetectDatabase.Item1}:  {DetectDatabase.Item2}");
+            Log.Information($"Event Db Connection => {Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")}");
         }
         private static void SetupGeneralAuthorizationSettings(IServiceCollection services)
         {
