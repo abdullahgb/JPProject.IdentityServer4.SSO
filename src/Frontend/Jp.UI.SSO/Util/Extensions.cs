@@ -103,7 +103,7 @@ namespace Jp.UI.SSO.Util
             if (claimsPrincipal.Claims.Any(x => x.Type == "tid"))
             {
                 var claims = claimsPrincipal.Claims;
-                tenant = new Tenant(claims.First(x=> x.Type=="tid").Value, claims.First(x => x.Type == "tname").Value);
+                 tenant = new Tenant(new Guid(claims.First(x => x.Type == "tid").Value), claims.First(x => x.Type == "tname").Value);
             }
 
             return tenant;
