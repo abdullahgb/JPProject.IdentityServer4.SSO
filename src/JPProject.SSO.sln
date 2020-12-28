@@ -63,7 +63,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JPProject.Sso.EntityFramewo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JPProject.Admin.EntityFramework.Repository", "..\..\JPProject.Core\src\Admin\JPProject.Admin.EntityFramework.Repository\JPProject.Admin.EntityFramework.Repository.csproj", "{AC2D44E1-7AAE-4A76-B417-7ACDC1EA1C87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bk.Auth.Events", "Bk.Auth.Events\Bk.Auth.Events.csproj", "{9B9C4841-6474-4B74-AD5A-E7753483ACA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bk.Auth.Events", "Bk.Auth.Events\Bk.Auth.Events.csproj", "{9B9C4841-6474-4B74-AD5A-E7753483ACA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

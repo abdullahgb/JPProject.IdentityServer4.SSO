@@ -2,19 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Product>Bk.Auth.Events</Product>
-    <Description>asdf</Description>
+    <Description>Common projects of Auth Events</Description>
     <PackageId>Bk.Auth.Events</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageReleaseNotes>asf</PackageReleaseNotes>
+    <PackageReleaseNotes>Added common project of events</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Company>Bk.Auth.Events</Company>
-    <Authors>Bk.Auth.Events</Authors>
+    <Company>Brickclay</Company>
+    <Authors>Abdullah Farooq</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bk.Common" Version="1.0.0" />
+    <PackageReference Include="Bk.Common.EventBus" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
