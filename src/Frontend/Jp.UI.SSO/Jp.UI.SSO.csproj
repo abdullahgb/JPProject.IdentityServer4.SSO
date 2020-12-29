@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Bk.Auth.Events" Version="1.0.1" />
-    <PackageReference Include="Bk.EventBus" Version="1.0.0" />
+    <PackageReference Include="Bk.Auth.Events" Version="1.0.2" />
+    <PackageReference Include="Bk.Common.EventBus" Version="1.0.0" />
     <!--<PackageReference Include="JPProject.AspNet.Core" Version="3.2.10-prerelease1.07-04-161958" />-->
     <PackageReference Include="JpProject.AspNetCore.PasswordHasher.Argon2" Version="3.0.3" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
@@ -52,6 +52,7 @@
     <Folder Include="Assets\templates\" />
     <Content Include="Assets\css\custom-style.css" />
     <Folder Include="Services\" />
+    <ProjectReference Include="..\..\..\..\..\repos\Bk.Common\Bk.Rebus.EventBus\Bk.Rebus.EventBus.csproj" />
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\Core\JPProject.AspNet.Core\JPProject.AspNet.Core.csproj" />
     <ProjectReference Include="..\..\Backend\Jp.Api.Management\Jp.Api.Management.csproj" />
     <ProjectReference Include="..\..\Backend\Jp.Database\Jp.Database.csproj" />

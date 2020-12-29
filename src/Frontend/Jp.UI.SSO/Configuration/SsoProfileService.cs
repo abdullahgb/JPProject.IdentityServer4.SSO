@@ -11,8 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Bk.Common.Objects;
-using Bk.Common.Strings;
+using Bk.Common.ObjectUtils;
 using Jp.Database.Identity;
 using JPProject.Domain.Core.Util;
 using Microsoft.AspNetCore.Http;
@@ -102,7 +101,7 @@ namespace Jp.UI.SSO.Configuration
             string tenantName;
             var tenantIdClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == "tname");
             tenantName = tenantIdClaim?.Value;
-            if (!tenantName.IsNull()) return tenantName;
+            if (!tenantName.IsObjNull()) return tenantName;
             tenantName = _context.HttpContext.Request.Query["acr_values"].ToString().Replace("tenant:", "");
             return tenantName;
         }

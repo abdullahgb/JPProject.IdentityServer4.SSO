@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using Bk.Auth.Events;
+using Bk.Common.Environments;
 using Bk.Common.EventBus;
-using Bk.EventBus;
-using Common.Rebus;
-using Common.Rebus.Configurations;
+using Bk.Rebus.EventBus;
+using Bk.Rebus.EventBus.Configurations;
 using Hellang.Middleware.ProblemDetails;
 using IdentityServer4.Services;
 using Jp.Api.Management.Configuration;
@@ -29,15 +28,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using MultiTenancyServer;
 using Newtonsoft.Json;
+using Rebus.Routing.TypeBased;
 using Serilog;
-
 
 namespace Jp.UI.SSO
 {
@@ -132,7 +130,9 @@ namespace Jp.UI.SSO
             ConfigureMultiTenantServices(services);
             ConfigureApiManagementServices(services);
             ConfigureIdentityServices(services);
-            services.AddRebusEventBus(Array.Empty<Type>(), new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")));
+            services.AddRebusEventBus(Array.Empty<Type>(),
+                new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")),
+                x=> x.TypeBased().Map<BusinessCreated>("authQueue"));
             services.AddScoped<IEventBus, EventBus>();
             
         }
@@ -208,7 +208,7 @@ namespace Jp.UI.SSO
             app.UseForwardedHeaders(fordwardedHeaderOptions);
             // Configure event bus
             app.UseCustomRebus();
-            app.UseMultiTenancy<Tenant>();
+            //app.UseMultiTenancy<Tenant>();
             app.UseIdentityServer();
             app.UseLocalization();
             app.UseDefaultCors();
@@ -232,9 +232,13 @@ namespace Jp.UI.SSO
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-            Log.Information($"Environment => {_env.EnvironmentName}");
-            Log.Information($"Auth Db Connection => {DetectDatabase.Item1}:  {DetectDatabase.Item2}");
-            Log.Information($"Event Db Connection => {Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")}");
+            if (_env.IsQa())
+            {
+                Log.Information($"Environment => {_env.EnvironmentName}");
+                Log.Information($"Auth Db Connection => {DetectDatabase.Item1}:  {DetectDatabase.Item2}");
+                Log.Information($"Event Db Connection => {Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")}");
+            }
+
         }
         private static void SetupGeneralAuthorizationSettings(IServiceCollection services)
         {

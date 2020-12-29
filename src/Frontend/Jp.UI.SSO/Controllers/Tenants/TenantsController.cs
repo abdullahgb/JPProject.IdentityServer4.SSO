@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Bk.Auth.Events;
 using Bk.Common.EventBus;
-using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -119,9 +118,9 @@ namespace Jp.UI.SSO.Controllers.Tenants
             await _userManager.AddToRolesAsync(user, newTenant, new[] {Roles.Owner});
             user.CompleteProfile();
             await _userManager.UpdateAsync(user);
-           
+            var @event = new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName, user.Email);
             // Publish event so other services can be notified
-            await _eventBus.Publish(new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName,user.Email));
+            await _eventBus.Publish(@event);
             await transaction.CommitAsync();
             // Sig-in with new tenant claims
             var claims = User.Claims;

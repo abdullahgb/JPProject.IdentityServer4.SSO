@@ -197,11 +197,18 @@ namespace Jp.UI.SSO.Controllers.Account
                 }
             }
 
-            var userFind = await _userManager.FindByEmailAsync(vm.Email);
-            if (userFind!=null)
+            var userEmailFind = await _userManager.FindByEmailAsync(vm.Email);
+            if (userEmailFind != null)
             {
                 await _mediator.RaiseEvent(new DomainNotification("Email", "Email already exist"));
                 ModelState.AddModelError("Error", "This email is already registered");
+                return View(vm);
+            }
+            var usernameFind = await _userManager.FindByNameAsync(vm.Username);
+            if (usernameFind != null)
+            {
+                await _mediator.RaiseEvent(new DomainNotification("Username", "Username already exist"));
+                ModelState.AddModelError("Error", "This Username is already registered");
                 return View(vm);
             }
 
@@ -212,6 +219,12 @@ namespace Jp.UI.SSO.Controllers.Account
 
             vm.ClearSensitiveData();
             var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+            {
+                await _mediator.RaiseEvent(new DomainNotification("User", "User registration failed"));
+                ModelState.AddModelError("Error", "Error occured while registering, Please try again later");
+                return View(vm);
+            }
             await HttpContext.SignInAsync(user.Id,new Claim("profileIncomplete",""));
             return vm.ReturnUrl.IsNullOrEmpty() ?
                 Redirect("~/Grants") :
