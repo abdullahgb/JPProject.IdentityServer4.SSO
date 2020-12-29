@@ -131,8 +131,11 @@ namespace Jp.UI.SSO
             ConfigureApiManagementServices(services);
             ConfigureIdentityServices(services);
             services.AddRebusEventBus(Array.Empty<Type>(),
-                new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")),
-                x=> x.TypeBased().Map<BusinessCreated>("authQueue"));
+                new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString"))
+                {
+                    MessageQueue = "AuthQueue"
+                },
+                x=> x.TypeBased().Map<BusinessCreated>("AuthQueue"));
             services.AddScoped<IEventBus, EventBus>();
             
         }

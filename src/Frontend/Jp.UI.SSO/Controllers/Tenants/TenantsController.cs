@@ -118,10 +118,10 @@ namespace Jp.UI.SSO.Controllers.Tenants
             await _userManager.AddToRolesAsync(user, newTenant, new[] {Roles.Owner});
             user.CompleteProfile();
             await _userManager.UpdateAsync(user);
+            await transaction.CommitAsync();
             var @event = new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName, user.Email);
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);
-            await transaction.CommitAsync();
             // Sig-in with new tenant claims
             var claims = User.Claims;
             claims = new List<Claim>(claims.Where(x => x.Type != ClaimExtensions.ProfileInComplete))

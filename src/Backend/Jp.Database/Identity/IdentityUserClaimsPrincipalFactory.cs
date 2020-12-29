@@ -27,6 +27,17 @@ namespace Jp.Database.Identity
             _httpContext = httpContext;
             _userManager = userManager;
         }
+
+        public override async Task<ClaimsPrincipal> CreateAsync(UserIdentity user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var id = await GenerateClaimsAsync(user);
+            return new ClaimsPrincipal(id);
+        }
+
         public async Task<ClaimsPrincipal> CreateAsync(UserIdentity user, Tenant tenant = null)
         {
             if (user == null)

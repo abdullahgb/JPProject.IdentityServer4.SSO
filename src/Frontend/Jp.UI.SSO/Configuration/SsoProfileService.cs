@@ -137,11 +137,7 @@ namespace Jp.UI.SSO.Configuration
             {
                 var acrTenant = GetTenantNameFromAcr(context);
                 var contextTenant = GetTenantNameFromContext(context.Subject);
-                if (user != null && acrTenant == contextTenant)
-                {
-                    context.IsActive = !isBlocked;
-                }
-                else
+                if (user.IsObjNull() || (acrTenant != contextTenant))
                 {
                     context.IsActive = false;
                 }

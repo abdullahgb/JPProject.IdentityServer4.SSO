@@ -31,8 +31,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Jp.Api.Management.Controllers;
 using Jp.Api.Management.Interfaces;
+using Jp.Database.Identity;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Jp.UI.SSO.Controllers.Account
@@ -40,7 +40,7 @@ namespace Jp.UI.SSO.Controllers.Account
     public class AccountController : Controller
     {
         private readonly IMediatorHandler Bus;
-        private readonly SignInManager<UserIdentity> _signInManager;
+        private readonly IdentitySigninManager _signInManager;
         private readonly UserManager<UserIdentity> _userManager;
         private readonly IUserAppService _userAppService;
         private readonly IGlobalConfigurationAppService _globalConfigurationAppService;
@@ -57,7 +57,7 @@ namespace Jp.UI.SSO.Controllers.Account
         private readonly DomainNotificationHandler _notifications;
 
         public AccountController(
-            SignInManager<UserIdentity> signInManager,
+            IdentitySigninManager signInManager,
             UserManager<UserIdentity> userManager,
             IUserAppService userAppService,
             IGlobalConfigurationAppService globalConfigurationAppService,
