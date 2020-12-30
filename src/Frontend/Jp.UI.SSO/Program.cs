@@ -44,7 +44,8 @@ namespace Jp.UI.SSO
                 .ConfigureWebHostDefaults(webBuilder => 
                     webBuilder
                         .UseStartup<Startup>()
-                        .UseSerilog(providers: Providers)
+                        //.UseSerilog(providers: Providers)
+                        .UseSerilog()
                     );
     }
 }

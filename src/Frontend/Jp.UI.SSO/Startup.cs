@@ -133,9 +133,10 @@ namespace Jp.UI.SSO
             services.AddRebusEventBus(Array.Empty<Type>(),
                 new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString"))
                 {
-                    MessageQueue = "AuthQueue"
+                    MessageQueue = "AuthQueue",
+                    UseSerilog = true
                 },
-                x=> x.TypeBased().Map<BusinessCreated>("AuthQueue"));
+                x=> x.TypeBased());
             services.AddScoped<IEventBus, EventBus>();
             
         }
