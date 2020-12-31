@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Bk.Auth.Events" Version="1.0.2" />
     <PackageReference Include="Bk.Common.EventBus" Version="1.0.0" />
     <PackageReference Include="Bk.Rebus.EventBus" Version="1.0.4" />
     <!--<PackageReference Include="JPProject.AspNet.Core" Version="3.2.10-prerelease1.07-04-161958" />-->
@@ -57,6 +56,7 @@
     <ProjectReference Include="..\..\Backend\Jp.Api.Management\Jp.Api.Management.csproj" />
     <ProjectReference Include="..\..\Backend\Jp.Database\Jp.Database.csproj" />
     <ProjectReference Include="..\..\Backend\Jp.Ldap\Jp.Ldap.csproj" />
+    <ProjectReference Include="..\..\Bk.Auth.Events\Bk.Auth.Events.csproj" />
   </ItemGroup>
 
 
