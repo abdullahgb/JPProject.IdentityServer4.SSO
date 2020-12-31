@@ -12,7 +12,7 @@ using Jp.Database.Context;
 using Jp.Database.Identity;
 using Jp.UI.SSO.Models;
 using Jp.UI.SSO.Util;
-using JPProject.Domain.Core.Util;
+using JPProject.Common;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -118,13 +118,13 @@ namespace Jp.UI.SSO.Controllers.Tenants
             await _userManager.AddToRolesAsync(user, newTenant, new[] {Roles.Owner});
             user.CompleteProfile();
             await _userManager.UpdateAsync(user);
-            await transaction.CommitAsync();
+            await transaction.CommitAsync();    
             var @event = new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName, user.Email);
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);
             // Sig-in with new tenant claims
             var claims = User.Claims;
-            claims = new List<Claim>(claims.Where(x => x.Type != ClaimExtensions.ProfileInComplete))
+            claims = new List<Claim>(claims.Where(x => x.Type != CustomClaimTypes.ProfileIncomplete))
             {
                 new Claim("tid", newTenant.Id),
                 new Claim("tname", newTenant.CanonicalName)

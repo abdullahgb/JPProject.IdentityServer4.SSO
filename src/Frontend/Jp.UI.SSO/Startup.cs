@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Bk.Auth.Events;
 using Bk.Common.Environments;
 using Bk.Common.EventBus;
 using Bk.Rebus.EventBus;
@@ -130,13 +128,7 @@ namespace Jp.UI.SSO
             ConfigureMultiTenantServices(services);
             ConfigureApiManagementServices(services);
             ConfigureIdentityServices(services);
-            services.AddRebusEventBus(Array.Empty<Type>(),
-                new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString"))
-                {
-                    MessageQueue = "AuthQueue",
-                    UseSerilog = true
-                },
-                x=> x.TypeBased());
+            services.AddRebusEventBus(new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString"),"AuthQueue"));
             services.AddScoped<IEventBus, EventBus>();
             
         }

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Common.Objects;
 using IdentityModel;
-using JPProject.Domain.Core.Util;
+using JPProject.Common;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -53,11 +52,11 @@ namespace Jp.Database.Identity
             var claims = new List<Claim>();
 
             // Check if Tenant is not created
-            if (!user.ProfileCompleted) claims.Add(new Claim(ClaimExtensions.ProfileInComplete, ""));
+            if (!user.ProfileCompleted) claims.Add(new Claim(CustomClaimTypes.ProfileIncomplete, ""));
 
             AddIfDontExist(claims,new Claim(JwtClaimTypes.Name, user.UserName));
             AddIfDontExist(claims,new Claim(JwtClaimTypes.GivenName, user.UserName));
-            if (!tenant.IsNull())
+            if (tenant != null)
             {
                 var roles = await _userManager.GetRolesAsync(user.Id, tenant.Id);
                 if (identity.Claims.All(c => c.Type != JwtClaimTypes.Role))
