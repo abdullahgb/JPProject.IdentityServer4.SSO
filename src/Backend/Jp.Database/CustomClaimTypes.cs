@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace JPProject.Common
+﻿namespace Jp.Database
 {
     public static class CustomClaimTypes
     {

@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("persisted-grants"), Authorize(Policy = "Default")]
+    [Route("persisted-grants"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class PersistedGrantsController : ApiController
     {
         private readonly IPersistedGrantAppService _persistedGrantAppService;

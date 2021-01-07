@@ -13,7 +13,6 @@ using Jwks.Manager;
 using Jwks.Manager.Store.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -132,5 +131,15 @@ namespace Jp.Database.Context
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
         public DbSet<SecurityKeyWithPrivate> SecurityKeys { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+    }
+
+    public class SsoQueryContext : SsoContext
+    {
+        public SsoQueryContext(DbContextOptions<SsoContext> options, ConfigurationStoreOptions storeOptions, OperationalStoreOptions operationalOptions, ILogger<SsoContext> logger, ITenancyContext<Tenant> tenancyContext = null) : base(options, storeOptions, operationalOptions, logger, tenancyContext) { }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            base.OnConfiguring(optionsBuilder);
+        }
     }
 }

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("global-configuration"), Authorize(Policy = "Default")]
+    [Route("global-configuration"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class GlobalConfigurationController : ApiController
     {
         private readonly IGlobalConfigurationAppService _globalConfigurationSettingsAppService;

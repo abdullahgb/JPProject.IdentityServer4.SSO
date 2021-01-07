@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace Jp.Api.Management.Controllers
 {
 
-    [Route("events"), Authorize(Policy = "Default")]
+    [Route("events"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class EventsController : ApiController
     {
         private readonly IEventStoreAppService _eventStoreAppService;

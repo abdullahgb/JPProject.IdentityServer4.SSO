@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("admin/users"), Authorize(Policy = "Default")]
+    [Route("admin/users"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class UserAdminController : ApiController
     {
         private readonly IUserManageAppService _userManageAppService;

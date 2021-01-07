@@ -22,7 +22,7 @@ namespace Jp.Database
              options => options.UseSqlServer(_connectionString, sql => sql.MigrationsAssembly(MigrationAssembly));
 
         public Action<DbContextOptionsBuilder> MySql =>
-             options => options.UseMySql(_connectionString, sql => sql.MigrationsAssembly(MigrationAssembly));
+             options => options.UseMySql(_connectionString,ServerVersion.AutoDetect(_connectionString), sql => sql.MigrationsAssembly(MigrationAssembly));
 
         public Action<DbContextOptionsBuilder> Postgre =>
              options => options.UseNpgsql(_connectionString, sql => sql.MigrationsAssembly(MigrationAssembly));

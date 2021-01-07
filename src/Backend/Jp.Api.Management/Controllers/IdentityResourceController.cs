@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("identity-resources"), Authorize(Policy = "Default")]
+    [Route("identity-resources"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class IdentityResourceController : ApiController
     {
         private readonly IIdentityResourceAppService _identityResourceAppService;

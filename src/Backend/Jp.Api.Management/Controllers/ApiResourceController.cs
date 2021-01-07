@@ -18,7 +18,7 @@ using ServiceStack;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("api-resources"), Authorize(Policy = "Default")]
+    [Route("api-resources"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class ApiResourcesController : ApiController
     {
         private readonly IApiResourceAppService _apiResourceAppService;

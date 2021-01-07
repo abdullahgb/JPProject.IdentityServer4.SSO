@@ -1,13 +1,12 @@
-﻿using Jp.Database;
+﻿using System;
 using JPProject.Domain.Core.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using static Jp.Database.ProviderConfiguration;
 
-namespace Microsoft.Extensions.Configuration
+namespace Jp.Database
 {
     public static class ProviderSelector
     {
@@ -23,6 +22,22 @@ namespace Microsoft.Extensions.Configuration
                 DatabaseType.MySql => services.PersistStore<TContext>(With.MySql),
                 DatabaseType.Postgre => services.PersistStore<TContext>(With.Postgre),
                 DatabaseType.Sqlite => services.PersistStore<TContext>(With.Sqlite),
+
+                _ => throw new ArgumentOutOfRangeException(nameof(database), database, null)
+            };
+        }
+        public static IServiceCollection ConfigureProviderForPooledContext<TContext>(
+            this IServiceCollection services,
+            (DatabaseType, string) options) where TContext : DbContext
+        {
+            var (database, connString) = options;
+            Build(connString);
+            return database switch
+            {
+                DatabaseType.SqlServer => services.PersistPooledStore<TContext>(With.SqlServer),
+                DatabaseType.MySql => services.PersistPooledStore<TContext>(With.MySql),
+                DatabaseType.Postgre => services.PersistPooledStore<TContext>(With.Postgre),
+                DatabaseType.Sqlite => services.PersistPooledStore<TContext>(With.Sqlite),
 
                 _ => throw new ArgumentOutOfRangeException(nameof(database), database, null)
             };
@@ -52,7 +67,7 @@ namespace Microsoft.Extensions.Configuration
             {
                 case DatabaseType.SqlServer:
                     builder.OAuth2Store(With.SqlServer);
-                    break;  
+                    break;
                 case DatabaseType.MySql:
                     builder.OAuth2Store(With.MySql);
                     break;

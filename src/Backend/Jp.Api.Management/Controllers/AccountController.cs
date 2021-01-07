@@ -18,7 +18,7 @@ namespace Jp.Api.Management.Controllers
     /// <summary>
     /// A set of services for users to self manage themselves
     /// </summary>
-    [Route("accounts"), Authorize(Policy = "UserManagement")]
+    [Route("accounts"), Authorize(Policy = "UserManagement",AuthenticationSchemes = "")]
     public class AccountController : ApiController
     {
         private readonly IUserManageAppService _userAppService;

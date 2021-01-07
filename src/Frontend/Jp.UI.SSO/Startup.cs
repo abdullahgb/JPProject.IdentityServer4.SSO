@@ -10,9 +10,11 @@ using IdentityServer4.Services;
 using Jp.Api.Management.Configuration;
 using Jp.Api.Management.Configuration.Authorization;
 using Jp.Api.Management.Interfaces;
+using Jp.Database;
 using Jp.Database.Context;
 using Jp.Database.Identity;
 using Jp.UI.SSO.Configuration;
+using Jp.UI.SSO.Graphql;
 using Jp.UI.SSO.Util;
 using JPProject.AspNet.Core;
 using JPProject.Domain.Core.ViewModels;
@@ -32,7 +34,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using MultiTenancyServer;
 using Newtonsoft.Json;
-using Rebus.Routing.TypeBased;
 using Serilog;
 
 namespace Jp.UI.SSO
@@ -77,6 +78,8 @@ namespace Jp.UI.SSO
 
             // Dbcontext config
             services.ConfigureProviderForContext<SsoContext>(DetectDatabase);
+            services.ConfigureProviderForContext<SsoQueryContext>(DetectDatabase);
+            //services.ConfigureProviderForPooledContext<SsoQueryContext>(DetectDatabase);
 
             // ASP.NET Identity Configuration
             services
@@ -130,7 +133,7 @@ namespace Jp.UI.SSO
             ConfigureIdentityServices(services);
             services.AddRebusEventBus(new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString"),"AuthQueue"));
             services.AddScoped<IEventBus, EventBus>();
-            
+            services.AddCustomGraphQL();
         }
 
         public void ConfigureIdentityServices(IServiceCollection services)
@@ -159,6 +162,8 @@ namespace Jp.UI.SSO
 
             // Configure policies
             services.AddPolicies();
+
+            //services.ConfigureApiAuthentication(Configuration);
 
             // configure openapi
             services.AddSwagger(Configuration);
@@ -227,6 +232,7 @@ namespace Jp.UI.SSO
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+                endpoints.MapGraphQL().RequireAuthorization("MultiTenantUser");
             });
             if (_env.IsQa())
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Jp.Api.Management.Configuration.Authorization
@@ -11,9 +12,17 @@ namespace Jp.Api.Management.Configuration.Authorization
             {
                 options.AddPolicy("UserManagement", policy =>
                     policy.RequireAuthenticatedUser());
+                options.AddPolicy("MultiTenantUser", policy =>
+                    policy.RequireAuthenticatedUser()
+                        .RequireClaim("tid")
+                        .AuthenticationSchemes = new List<string>{ "switch" });
 
                 options.AddPolicy("Default",
-                    policy => policy.Requirements.Add(new AccountRequirement()));
+                    policy =>
+                    {
+                        policy.Requirements.Add(new AccountRequirement());
+                        policy.AuthenticationSchemes =  new List<string>{"Bearer"};
+                    });
             });
             services.AddSingleton<IAuthorizationHandler, AccountRequirementHandler>();
         }

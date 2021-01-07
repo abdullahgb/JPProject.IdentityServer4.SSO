@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Threading.Tasks;
-using static Microsoft.Extensions.Configuration.ProviderSelector;
+using Jp.Database;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Jp.Api.Management.Configuration

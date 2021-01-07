@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("roles"), Authorize(Policy = "Default")]
+    [Route("roles"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class RolesController : ApiController
     {
         private readonly IRoleManagerAppService _roleManagerAppService;

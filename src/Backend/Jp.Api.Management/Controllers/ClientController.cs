@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Jp.Api.Management.Controllers
 {
-    [Route("clients"), Authorize(Policy = "Default")]
+    [Route("clients"), Authorize(Policy = "Default", AuthenticationSchemes = "switch")]
     public class ClientsController : ApiController
     {
         private readonly IClientAppService _clientAppService;
