@@ -9,7 +9,9 @@ namespace Jp.UI.SSO.Graphql.SessionExtension
             this IObjectTypeDescriptor<Session> descriptor)
         {
             descriptor.Field<BusinessQueryType>(resolver => resolver.GetMyBusinesses(default))
-                .Name("businesses");
+                .Name("myBusinesses");
+            descriptor.Field<BusinessQueryType>(resolver => resolver.GetAssociatedBusinesses(default))
+                .Name("associatedBusinesses");
 
             descriptor.Field<WorkerQueryType>(resolver => resolver.GetPaginatedWorkers())
                 .Name("paginatedWorkers");

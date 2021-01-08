@@ -12,6 +12,7 @@
     <PackageReference Include="Bk.Rebus.EventBus" Version="1.0.4" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="11.0.6" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="11.0.6" />
+    <PackageReference Include="HotChocolate.AspNetCore.Voyager" Version="10.5.5" />
     <PackageReference Include="HotChocolate.Data" Version="11.0.6" />
     <PackageReference Include="HotChocolate.Types" Version="11.0.6" />
     <!--<PackageReference Include="JPProject.AspNet.Core" Version="3.2.10-prerelease1.07-04-161958" />-->

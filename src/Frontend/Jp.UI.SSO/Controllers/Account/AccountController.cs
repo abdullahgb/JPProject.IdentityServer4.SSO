@@ -32,6 +32,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Jp.Api.Management.Interfaces;
+using Jp.Database;
 using Jp.Database.Identity;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
@@ -39,7 +40,6 @@ namespace Jp.UI.SSO.Controllers.Account
 {
     public class AccountController : Controller
     {
-        private readonly IMediatorHandler Bus;
         private readonly IdentitySigninManager _signInManager;
         private readonly UserManager<UserIdentity> _userManager;
         private readonly IUserAppService _userAppService;
@@ -66,7 +66,6 @@ namespace Jp.UI.SSO.Controllers.Account
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
             INotificationHandler<DomainNotification> notifications,
-            IMediatorHandler bus,
             IConfiguration configuration,
             IUserManageAppService userManageAppService,
             ISystemUser user,
@@ -74,7 +73,6 @@ namespace Jp.UI.SSO.Controllers.Account
             IMediatorHandler mediator,
             ILogger<AccountController> logger)
         {
-            Bus = bus;
             _signInManager = signInManager;
             _userManager = userManager;
             _userAppService = userAppService;
@@ -225,7 +223,7 @@ namespace Jp.UI.SSO.Controllers.Account
                 ModelState.AddModelError("Error", "Error occured while registering, Please try again later");
                 return View(vm);
             }
-            await HttpContext.SignInAsync(user.Id,new Claim("profileIncomplete",""));
+            await HttpContext.SignInAsync(user.Id,new Claim(CustomClaimTypes.ProfileIncomplete, "1"));
             return vm.ReturnUrl.IsNullOrEmpty() ?
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);

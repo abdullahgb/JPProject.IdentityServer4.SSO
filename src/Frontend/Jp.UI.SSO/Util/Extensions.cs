@@ -63,6 +63,16 @@ namespace Jp.UI.SSO.Util
                 claims.Add(claim);
             }
         }
+        public static void MergeValues(this List<Claim> claims, IEnumerable<Claim> newClaim)
+        {
+            foreach (var claim in newClaim)
+            {
+                if (claims.Any(c => c.Type == claim.Type && (c.Value == claim.Value)))
+                    continue;
+
+                claims.Add(claim);
+            }
+        }
         public static void Merge(this List<string> items, IEnumerable<string> content)
         {
             foreach (var claim in content)

@@ -51,7 +51,7 @@ namespace Jp.Database.Identity
             var claims = new List<Claim>();
 
             // Check if Tenant is not created
-            if (!user.ProfileCompleted) claims.Add(new Claim(CustomClaimTypes.ProfileIncomplete, ""));
+            if (!user.ProfileCompleted) claims.Add(new Claim(CustomClaimTypes.ProfileIncomplete, "1"));
 
             AddIfDontExist(claims,new Claim(JwtClaimTypes.Name, user.UserName));
             AddIfDontExist(claims,new Claim(JwtClaimTypes.GivenName, user.UserName));

@@ -196,6 +196,7 @@ namespace Jp.UI.SSO
             }
 
             app.UseSerilogRequestLogging();
+            app.UseCustomVoyager();
             app.UseSecurityHeaders(env, Configuration);
             app.UseStaticFiles();
 
@@ -213,6 +214,7 @@ namespace Jp.UI.SSO
             app.UseIdentityServer();
             app.UseLocalization();
             app.UseDefaultCors();
+            app.UseCustomVoyager();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -228,19 +230,12 @@ namespace Jp.UI.SSO
             });
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapCustomGraphql();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
-                endpoints.MapGraphQL().RequireAuthorization("MultiTenantUser");
             });
-            if (_env.IsQa())
-            {
-                Log.Information($"Environment => {_env.EnvironmentName}");
-                Log.Information($"Auth Db Connection => {DetectDatabase.Item1}:  {DetectDatabase.Item2}");
-                Log.Information($"Event Db Connection => {Configuration.GetValue<string>("EventBusConfiguration:ConnectionString")}");
-            }
-
         }
         private static void SetupGeneralAuthorizationSettings(IServiceCollection services)
         {
