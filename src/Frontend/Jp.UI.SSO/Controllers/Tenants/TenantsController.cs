@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Bk.Auth.Events;
 using Bk.Common.EventBus;
+using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -115,7 +116,8 @@ namespace Jp.UI.SSO.Controllers.Tenants
 
             // Add Owner role to user
             var user =  await _userManager.FindByIdAsync(ownerId);
-            await _userManager.AddToRolesAsync(user, newTenant, new[] {Roles.Owner});
+            var roles = new[] {Roles.Owner, Roles.Admin};
+            await _userManager.AddToRolesAsync(user, newTenant, roles);
             user.CompleteProfile();
             await _userManager.UpdateAsync(user);
             await transaction.CommitAsync();    
@@ -123,13 +125,14 @@ namespace Jp.UI.SSO.Controllers.Tenants
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);
             // Sig-in with new tenant claims
-            var claims = User.Claims;
-            claims = new List<Claim>(claims.Where(x => x.Type != CustomClaimTypes.ProfileIncomplete))
+            var newClaims = new List<Claim>(roles.Select(role =>
+                new Claim(JwtClaimTypes.Role, role)))
             {
                 new Claim("tid", newTenant.Id),
                 new Claim("tname", newTenant.CanonicalName)
             };
-            await HttpContext.SignInAsync(ownerId, claims.ToArray());
+            var claims = User.Claims.Where(x => x.Type != CustomClaimTypes.ProfileIncomplete).Concat(newClaims).ToArray();
+            await HttpContext.SignInAsync(ownerId, claims);
             return IEnumerableExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);

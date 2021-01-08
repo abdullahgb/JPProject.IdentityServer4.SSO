@@ -14,8 +14,12 @@ namespace Jp.Api.Management.Configuration.Authorization
                     policy.RequireAuthenticatedUser());
                 options.AddPolicy("MultiTenantUser", policy =>
                     policy.RequireAuthenticatedUser()
+                        .RequireClaim("tid"));
+                options.AddPolicy("TenantAdministration", policy =>
+                    policy.RequireAuthenticatedUser()
+                        .RequireAuthenticatedUser()
                         .RequireClaim("tid")
-                        .AuthenticationSchemes = new List<string>{ "switch" });
+                        .RequireRole("admin"));
 
                 options.AddPolicy("Default",
                     policy =>

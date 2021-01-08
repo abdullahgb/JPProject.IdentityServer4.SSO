@@ -51,7 +51,7 @@ namespace Jp.UI.SSO.Util
                     ssoContext.Database.EnsureCreated();
 
                 await EnsureSeedIdentityServerData(ssoContext, configuration);
-                await EnsureSeedIdentityData(tenantMgr, userManager, roleManager, configuration);
+                await EnsureSeedIdentityData(ssoContext,tenantMgr, userManager, roleManager, configuration);
                 await EnsureSeedGlobalConfigurationData(ssoContext, configuration, env);
             }
         }
@@ -175,48 +175,20 @@ namespace Jp.UI.SSO.Util
         /// Generate default admin user / role
         /// </summary>
         private static async Task EnsureSeedIdentityData(
+            SsoContext context,
             TenantManager<Tenant> tenantMgr,
             IdentityUserManager userManager,
             RoleManager<RoleIdentity> roleManager,
             IConfiguration configuration)
         {
-
-            // Create admin role
-            if (!await roleManager.RoleExistsAsync(Roles.Admin))
+            var applicationRoles = Roles.GetApplicationRoles();
+            var dbRoles = await context.Roles
+                .ToListAsync();
+            var newRoles = applicationRoles.Where(appRole => dbRoles.All(p2 => p2.Name != appRole));
+            foreach (var newRole in newRoles)
             {
-                var role = new RoleIdentity { Name = Roles.Admin };
-
-                await roleManager.CreateAsync(role);
+               await roleManager.CreateAsync(new RoleIdentity() {Name = newRole});
             }
-            // Create owner role
-            if (!await roleManager.RoleExistsAsync(Roles.Owner))
-            {
-                var role = new RoleIdentity { Name = Roles.Owner };
-
-                await roleManager.CreateAsync(role);
-            }
-            // Create manager role
-            if (!await roleManager.RoleExistsAsync(Roles.Manager))
-            {
-                var role = new RoleIdentity { Name = Roles.Manager };
-
-                await roleManager.CreateAsync(role);
-            }
-            // Create worker role
-            if (!await roleManager.RoleExistsAsync(Roles.Worker))
-            {
-                var role = new RoleIdentity { Name = Roles.Worker };
-
-                await roleManager.CreateAsync(role);
-            }
-            // Create user role
-            if (!await roleManager.RoleExistsAsync(Roles.User))
-            {
-                var role = new RoleIdentity { Name = Roles.User };
-
-                await roleManager.CreateAsync(role);
-            }
-
             // Create admin user
             if (await userManager.FindByNameAsync(Users.GetUser(configuration)) != null) return;
 
@@ -234,7 +206,7 @@ namespace Jp.UI.SSO.Util
             if (result.Succeeded)
             {
                 // Create Admin Tenant
-                var tenant = new Tenant("brickclay", "Brickclay");
+                var tenant = new Tenant("oauth", "OAuth Tenant");
                 await tenantMgr.CreateAsync(tenant);
 
                 // Create Admin Claims
@@ -243,7 +215,8 @@ namespace Jp.UI.SSO.Util
                 await userManager.AddClaimAsync(user, new Claim("email", Users.GetEmail(configuration)));
 
                 // Create Admin Roles based on Tenant
-                await userManager.AddToRoleAsync(tenant,user, "Administrator");
+                await userManager.AddToRoleAsync(tenant,user, Roles.OAuthAdmin);
+                await userManager.AddToRoleAsync(tenant,user, Roles.Owner);
             }
         }
 

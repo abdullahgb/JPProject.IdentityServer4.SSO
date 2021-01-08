@@ -1,4 +1,6 @@
-﻿using Bk.Common.ArrayUtils;
+﻿using System.Linq;
+using Bk.Common.ArrayUtils;
+using HotChocolate.AspNetCore;
 using HotChocolate.AspNetCore.Voyager;
 using Jp.UI.SSO.Graphql.SessionExtension;
 using Jp.UI.SSO.Graphql.Types;
@@ -11,11 +13,11 @@ namespace Jp.UI.SSO.Graphql
 {
     public static class GraphQlServiceExtension
     {
-        private static string _path;
+        public static string Path { get; private set; }
         // ReSharper disable once InconsistentNaming
         public static IServiceCollection AddCustomGraphQL(this IServiceCollection services, string path = "/graphql")
         {
-            _path = path;
+            Path = path;
             var types = new[] {typeof(BusinessQueryType), typeof(WorkerQueryType),};
             var graphqlServer = services
                 .AddGraphQLServer()
@@ -28,10 +30,14 @@ namespace Jp.UI.SSO.Graphql
                 .AddAuthorization()
                 .AddHttpRequestInterceptor(async (ctx, executor, builder, token) =>
                 {
-                    var authenticateResult =
-                        await ctx.AuthenticateAsync("Bearer");
-                    if (authenticateResult.Succeeded)
-                        ctx.User = authenticateResult.Principal;
+                    var bearerAuth = ctx.Request.Headers["Authorization"].FirstOrDefault()?.StartsWith("Bearer ") ?? false;
+                    if (bearerAuth)
+                    {
+                        var authenticateResult =
+                            await ctx.AuthenticateAsync("Bearer");
+                        if (authenticateResult.Succeeded)
+                            ctx.User = authenticateResult.Principal;
+                    }
                 })
                 .AddQueryType<Query>();
             types.ForEach(x=> graphqlServer.AddType(x));
@@ -45,12 +51,12 @@ namespace Jp.UI.SSO.Graphql
             app.UseVoyager(new VoyagerOptions
             {
                 Path = "/voyager",
-                QueryPath = _path
+                QueryPath = Path
             });
         }
         public static void MapCustomGraphql(this IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGraphQL(_path);
+            endpoints.MapGraphQL(Path);
         }
     }
 }

@@ -27,8 +27,7 @@ namespace Jp.UI.SSO.Configuration
                         // eg: if (context.HttpContext.Request.Path.StartsWithSegments("/api", StringComparison.InvariantCulture))
                         if (bearerAuth)
                             return JwtBearerDefaults.AuthenticationScheme;
-                        else
-                            return "Identity.Application";
+                        return "Identity.Application";
                     };
                 })
                 .AddIdentityServerAuthentication(options =>

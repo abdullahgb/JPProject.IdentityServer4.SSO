@@ -11,9 +11,10 @@ namespace Jp.UI.SSO.Graphql
         public string Version { get; set; } = "1.0";
     }
 
-    [ExtendObjectType(Name = nameof(Query))]
+    //[ExtendObjectType(Name = nameof(Query))]
     public class BaseQueryType
     {
+        public string Version { get; set; } = "1.0";
         protected readonly IHttpContextAccessor HttpContextAccessor;
         private OAuthSession _session;
 

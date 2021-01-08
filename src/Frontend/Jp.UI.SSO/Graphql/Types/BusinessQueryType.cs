@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using HotChocolate;
+using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Data;
 using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
-using HotChocolate.AspNetCore.Authorization;
-using Jp.Database;
+using Jp.UI.SSO.Util;
 using Microsoft.AspNetCore.Http;
 
 namespace Jp.UI.SSO.Graphql.Types
@@ -18,10 +18,10 @@ namespace Jp.UI.SSO.Graphql.Types
         [UseProjection]
         [UseFiltering]
         [GraphQLIgnore]
-        public IQueryable<Tenant> GetMyBusinesses([Service] SsoQueryContext context) => (from tenant in context.Tenants
+        public IQueryable<Tenant> GetOwnedBusinesses([Service] SsoQueryContext context) => (from tenant in context.Tenants
             join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
             join role in context.Roles on userRole.RoleId equals role.Id
-            where userRole.UserId == Session.SubjectId.ToString() && role.Name.Contains(CustomRoleTypes.Owner)
+            where userRole.UserId == Session.SubjectId.ToString() && role.Name.Contains(Roles.Owner)
             select tenant).Distinct();
 
         [UseProjection]
