@@ -17,29 +17,8 @@ namespace Jp.UI.SSO.Configuration
             IConfiguration configuration)
         {
             Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
-            var authBuilder = services.AddAuthentication()
-                .AddPolicyScheme("switch", "cookie or bearer", options =>
-                {
-                    options.ForwardDefaultSelector = context =>
-                    {
-                        var bearerAuth = context.Request.Headers["Authorization"].FirstOrDefault()?.StartsWith("Bearer ") ?? false;
-                        // You could also check for the actual path here if that's your requirement:
-                        // eg: if (context.HttpContext.Request.Path.StartsWithSegments("/api", StringComparison.InvariantCulture))
-                        if (bearerAuth)
-                            return JwtBearerDefaults.AuthenticationScheme;
-                        return "Identity.Application";
-                    };
-                })
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = configuration.GetValue<string>("ApplicationSettings:Authority");
-                    options.RequireHttpsMetadata = false;
-                    options.ApiSecret = "Q&tGrEQMypEk.XxPU:%bWDZMdpZeJiyMwpLv4F7d**w9x:7KuJ#fy,E8KPHpKz++";
-                    options.ApiName = "jp_api";
-                    options.RoleClaimType = JwtClaimTypes.Role;
-                    options.NameClaimType = JwtClaimTypes.Name;
-                }); ;
 
+            var authBuilder = services.AddCustomAuthentication(configuration);
 
             if (configuration.GetSection("ExternalLogin:Google").Exists())
             {

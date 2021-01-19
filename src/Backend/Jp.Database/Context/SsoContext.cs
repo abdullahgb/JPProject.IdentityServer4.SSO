@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using JPProject.Sso.AspNetIdentity.Models;
 using Microsoft.Extensions.Logging;
 using MultiTenancyServer;
 using MultiTenancyServer.EntityFramework;
@@ -65,10 +66,23 @@ namespace Jp.Database.Context
             base.OnModelCreating(builder);
             builder.Entity<RoleIdentity>().ToTable(TableConsts.IdentityRoles);
             builder.Entity<IdentityRoleClaim<string>>().ToTable(TableConsts.IdentityRoleClaims);
-            //builder.Entity<IdentityUserRole<string>>().ToTable(TableConsts.IdentityUserRoles);
-            builder.Entity<UserRoleIdentity>().ToTable(TableConsts.IdentityUserRoles);
-
             builder.Entity<UserIdentity>().ToTable(TableConsts.IdentityUsers);
+            builder.Entity<UserRoleIdentity>().ToTable(TableConsts.IdentityUserRoles);
+            builder.Entity<UserRoleIdentity>()
+                .HasOne(c => c.User)
+                .WithMany(e => e.UserRoles)
+                .HasForeignKey(e => e.UserId)
+                .IsRequired();
+            builder.Entity<UserRoleIdentity>()
+                .HasOne(c => c.Role)
+                .WithMany(e => e.UserRoles)
+                .HasForeignKey(e => e.RoleId)
+                .IsRequired();
+            builder.Entity<UserRoleIdentity>()
+                .HasOne(c => c.Tenant)
+                .WithMany(e => e.UserRoles)
+                .HasForeignKey(e => e.TenantId)
+                .IsRequired();
             builder.Entity<IdentityUserLogin<string>>().ToTable(TableConsts.IdentityUserLogins);
             builder.Entity<IdentityUserClaim<string>>().ToTable(TableConsts.IdentityUserClaims);
             builder.Entity<IdentityUserToken<string>>().ToTable(TableConsts.IdentityUserTokens);
@@ -88,7 +102,6 @@ namespace Jp.Database.Context
             builder.HasTenancy<string>(tenantReferenceOptions, out _tenancyModelState);
 
             // Configure custom properties on Tenant (MultiTenancyServer).
-            builder.Entity<Tenant>();
 
             // Configure properties on Role (ASP.NET Core Identity).
             builder.Entity<UserRoleIdentity>(b =>
@@ -103,11 +116,9 @@ namespace Jp.Database.Context
                 b.HasIndex(r => r.UserId).IsUnique(false);
                 b.HasIndex(r => r.RoleId).IsUnique(false);
                 b.HasIndex(r => r.TenantId).IsUnique(false);
-
                 // Add unique index on TenantId and NormalizedName.
                 b.HasIndex("TenantId", "RoleId", "UserId")
                     .HasName("TenantUserRoleIndex").IsUnique();
-
             });
         }
 
@@ -139,6 +150,15 @@ namespace Jp.Database.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            base.OnConfiguring(optionsBuilder);
+        }
+    }
+    public class SsoCommandContext : SsoContext
+    {
+        public SsoCommandContext(DbContextOptions<SsoContext> options, ConfigurationStoreOptions storeOptions, OperationalStoreOptions operationalOptions, ILogger<SsoContext> logger, ITenancyContext<Tenant> tenancyContext = null) : base(options, storeOptions, operationalOptions, logger, tenancyContext) { }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
             base.OnConfiguring(optionsBuilder);
         }
     }

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Bk.Auth.Events;
 using Bk.Common.EventBus;
+using Bk.Common.Roles;
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
@@ -14,6 +15,7 @@ using Jp.Database.Context;
 using Jp.Database.Identity;
 using Jp.UI.SSO.Models;
 using Jp.UI.SSO.Util;
+using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -109,14 +111,21 @@ namespace Jp.UI.SSO.Controllers.Tenants
             }
             await using var transaction = await _context.Database.BeginTransactionAsync();
             // Create new tenant
-            var newTenant = new Tenant(vm.Name,vm.Name);
+            var newTenant = new Tenant(vm.Name,vm.Name,vm.Country,vm.Currency,TenantTypes.GENERIC,Industries.SoleProprietorShip);
             await _tenantManager.CreateAsync(newTenant);
 
             var ownerId = User.GetSubjectId();
 
             // Add Owner role to user
             var user =  await _userManager.FindByIdAsync(ownerId);
-            var roles = new[] {Roles.Owner, Roles.Admin};
+            var roles = new[]
+            {
+                ApplicationRoles.Owner,
+                ApplicationRoles.Finance.Admin,
+                ApplicationRoles.Hr.Admin,
+                ApplicationRoles.TimeTracking.Admin,
+                ApplicationRoles.TrackingAgent.Admin
+            };
             await _userManager.AddToRolesAsync(user, newTenant, roles);
             user.CompleteProfile();
             await _userManager.UpdateAsync(user);

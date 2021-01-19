@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
 namespace Jp.UI.SSO.Models

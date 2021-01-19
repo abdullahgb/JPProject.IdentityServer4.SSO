@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

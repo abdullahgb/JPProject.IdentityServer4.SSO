@@ -17,9 +17,8 @@ namespace Jp.Api.Management.Configuration.Authorization
                         .RequireClaim("tid"));
                 options.AddPolicy("TenantAdministration", policy =>
                     policy.RequireAuthenticatedUser()
-                        .RequireAuthenticatedUser()
                         .RequireClaim("tid")
-                        .RequireRole("admin"));
+                        .RequireRole("owner"));
 
                 options.AddPolicy("Default",
                     policy =>

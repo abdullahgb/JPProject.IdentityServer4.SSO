@@ -3,11 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Bk.Common.Roles;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
 using Jp.Database.Context;
 using Jp.Database.Identity;
 using JPProject.EntityFrameworkCore.MigrationHelper;
+using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using JPProject.Sso.Domain.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -181,7 +183,7 @@ namespace Jp.UI.SSO.Util
             RoleManager<RoleIdentity> roleManager,
             IConfiguration configuration)
         {
-            var applicationRoles = Roles.GetApplicationRoles();
+            var applicationRoles = ApplicationRoles.GetApplicationRoles();
             var dbRoles = await context.Roles
                 .ToListAsync();
             var newRoles = applicationRoles.Where(appRole => dbRoles.All(p2 => p2.Name != appRole));
@@ -206,7 +208,7 @@ namespace Jp.UI.SSO.Util
             if (result.Succeeded)
             {
                 // Create Admin Tenant
-                var tenant = new Tenant("oauth", "OAuth Tenant");
+                var tenant = new Tenant("oauth", "OAuth Tenant","pK","rs",TenantTypes.GENERIC,Industries.SoleProprietorShip);
                 await tenantMgr.CreateAsync(tenant);
 
                 // Create Admin Claims
@@ -215,8 +217,8 @@ namespace Jp.UI.SSO.Util
                 await userManager.AddClaimAsync(user, new Claim("email", Users.GetEmail(configuration)));
 
                 // Create Admin Roles based on Tenant
-                await userManager.AddToRoleAsync(tenant,user, Roles.OAuthAdmin);
-                await userManager.AddToRoleAsync(tenant,user, Roles.Owner);
+                await userManager.AddToRoleAsync(tenant,user, ApplicationRoles.OAuthAdmin);
+                await userManager.AddToRoleAsync(tenant,user, ApplicationRoles.Owner);
             }
         }
 

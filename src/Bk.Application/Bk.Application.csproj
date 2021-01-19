@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspectInjector" Version="2.4.3" />
+    <PackageReference Include="Bk.Common" Version="1.0.6.49" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="11.0.6" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="11.0.6" />
+    <PackageReference Include="HotChocolate.AspNetCore.Voyager" Version="10.5.5" />
+    <PackageReference Include="HotChocolate.Data" Version="11.0.6" />
+    <PackageReference Include="HotChocolate.Types" Version="11.0.6" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.5.1" />
+    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Backend\Jp.Database\Jp.Database.csproj" />
+  </ItemGroup>
+
+</Project>

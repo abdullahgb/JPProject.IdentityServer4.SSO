@@ -7,7 +7,9 @@ namespace Jp.UI.SSO.Models
         [Required]
         public string Name { get; set; }
         public int Type { get; set; }
+        [Required]
         public string Country { get; set; }
+        [Required]
         public string Currency { get; set; }
         public string ReturnUrl { get; set; }
     }

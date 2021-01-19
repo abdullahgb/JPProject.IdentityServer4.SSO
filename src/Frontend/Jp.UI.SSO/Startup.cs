@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using Bk.Application;
 using Bk.Common.Environments;
 using Bk.Common.EventBus;
 using Bk.Rebus.EventBus;
@@ -14,11 +15,11 @@ using Jp.Database;
 using Jp.Database.Context;
 using Jp.Database.Identity;
 using Jp.UI.SSO.Configuration;
-using Jp.UI.SSO.Graphql;
 using Jp.UI.SSO.Util;
 using JPProject.AspNet.Core;
 using JPProject.Domain.Core.ViewModels;
 using JPProject.Sso.AspNetIdentity.Configuration;
+using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 using JPProject.Sso.EntityFramework.Repository.Configuration;
 using MediatR;
@@ -52,6 +53,7 @@ namespace Jp.UI.SSO
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            _env.SetEnv();
             services.AddHttpContextAccessor();
             services.AddControllersWithViews()
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, opts => { opts.ResourcesPath = "Resources"; })

@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Bk.Common.ObjectUtils;
 using Jp.Database.Identity;
 using JPProject.Domain.Core.Util;
+using JPProject.Sso.AspNetIdentity.Models;
 using Microsoft.AspNetCore.Http;
 using MultiTenancyServer;
 

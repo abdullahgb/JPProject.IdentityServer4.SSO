@@ -7,6 +7,16 @@
   <ItemGroup>
     <Compile Remove="Migrations\20201210170222_AddPrfileCompleted2.cs" />
     <Compile Remove="Migrations\20201210170222_AddPrfileCompleted2.Designer.cs" />
+    <Compile Remove="Migrations\20210118153047_UpdateUseRoles.cs" />
+    <Compile Remove="Migrations\20210118153047_UpdateUseRoles.Designer.cs" />
+    <Compile Remove="Migrations\20210118153845_UpdateUseRoles.cs" />
+    <Compile Remove="Migrations\20210118153845_UpdateUseRoles.Designer.cs" />
+    <Compile Remove="Migrations\20210119115333_MultiTenant.cs" />
+    <Compile Remove="Migrations\20210119115333_MultiTenant.Designer.cs" />
+    <Compile Remove="Migrations\20210119121127_MultiTenant.cs" />
+    <Compile Remove="Migrations\20210119121127_MultiTenant.Designer.cs" />
+    <Compile Remove="Migrations\20210119123648_MultiTenant.cs" />
+    <Compile Remove="Migrations\20210119123648_MultiTenant.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +27,7 @@
     <PackageReference Include="Jwks.Manager.Store.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup Label="Databases">
@@ -30,5 +41,9 @@
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\Core\JPProject.Domain.Core\JPProject.Domain.Core.csproj" />
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\SSO\JPProject.Sso.AspNetIdentity\JPProject.Sso.AspNetIdentity.csproj" />
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\SSO\JPProject.Sso.EntityFramework.Repository\JPProject.Sso.EntityFramework.Repository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\" />
   </ItemGroup>
 </Project>
