@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bk.Common.Claims;
+using Bk.Common.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,22 +11,45 @@ namespace Jp.Api.Management.Configuration.Authorization
         {
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("UserManagement", policy =>
-                    policy.RequireAuthenticatedUser());
                 options.AddPolicy("MultiTenantUser", policy =>
                     policy.RequireAuthenticatedUser()
                         .RequireClaim("tid"));
+                options.AddPolicy("TenantOwner", policy =>
+                    policy
+                        .RequireClaim(OpenIdRoles.TenantId)
+                        .RequireRole(
+                            ApplicationRoles.Owner
+                        ));
                 options.AddPolicy("TenantAdministration", policy =>
-                    policy.RequireAuthenticatedUser()
-                        .RequireClaim("tid")
-                        .RequireRole("owner"));
+                    policy
+                        .RequireClaim("http://schemas.microsoft.com/identity/claims/tenantid")
+                        .RequireRole(
+                            ApplicationRoles.Owner,
+                                ApplicationRoles.Finance.Admin,
 
-                options.AddPolicy("Default",
-                    policy =>
-                    {
-                        policy.Requirements.Add(new AccountRequirement());
-                        policy.AuthenticationSchemes =  new List<string>{"Bearer"};
-                    });
+                                ApplicationRoles.Hr.Admin,
+
+                                ApplicationRoles.TimeTracking.Admin,
+
+                                ApplicationRoles.TrackingAgent.Admin
+                        ));
+                options.AddPolicy("TenantManagement", policy =>
+                    policy
+                        .RequireClaim("http://schemas.microsoft.com/identity/claims/tenantid")
+                        .RequireRole(
+                            ApplicationRoles.Owner,
+                            ApplicationRoles.Finance.Admin,
+                            ApplicationRoles.Finance.Manager,
+
+                            ApplicationRoles.Hr.Admin,
+                            ApplicationRoles.Hr.Manager,
+
+                            ApplicationRoles.TimeTracking.Admin,
+                            ApplicationRoles.TimeTracking.Manager,
+
+                            ApplicationRoles.TrackingAgent.Admin,
+                            ApplicationRoles.TrackingAgent.Manager
+                        ));
             });
             services.AddSingleton<IAuthorizationHandler, AccountRequirementHandler>();
         }

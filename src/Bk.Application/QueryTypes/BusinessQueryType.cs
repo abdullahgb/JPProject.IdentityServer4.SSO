@@ -1,36 +1,61 @@
 ﻿using System.Linq;
+using Bk.Application.SessionExtension;
 using Bk.Common.Roles;
 using HotChocolate;
 using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Data;
+using HotChocolate.Types;
 using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models;
+using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 
 namespace Bk.Application.QueryTypes
 {
-    [Authorize]
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class BusinessQueryType: BaseQueryType
+    public class BusinessQueryType
     {
-        public BusinessQueryType(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor) { }
+        [Authorize(Policy = "TenantOwner")]
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Tenant> GetOwnedBusinesses([GraphQLSession] OAuthSession session, [Service] SsoQueryContext context) => (from tenant in context.Tenants
+            join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
+            join role in context.Roles on userRole.RoleId equals role.Id
+            where userRole.UserId == session.SubjectId.ToString() && role.Name.Contains(ApplicationRoles.Owner)
+            select tenant).Distinct();
 
+        [Authorize]
         [UseProjection]
         [UseFiltering]
         [GraphQLIgnore]
-        public IQueryable<Tenant> GetOwnedBusinesses([Service] SsoQueryContext context) => (from tenant in context.Tenants
+        public IQueryable<Tenant> GetAssociatedBusinesses([GraphQLSession] OAuthSession session,[Service] SsoQueryContext context) => (from tenant in context.Tenants
             join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
             join role in context.Roles on userRole.RoleId equals role.Id
-            where userRole.UserId == Session.SubjectId.ToString() && role.Name.Contains(ApplicationRoles.Owner)
+            where userRole.UserId == session.SubjectId.ToString()
             select tenant).Distinct();
-
-        [UseProjection]
-        [UseFiltering]
-        [GraphQLIgnore]
-        public IQueryable<Tenant> GetAssociatedBusinesses([Service] SsoQueryContext context) => (from tenant in context.Tenants
-            join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
-            join role in context.Roles on userRole.RoleId equals role.Id
-            where userRole.UserId == Session.SubjectId.ToString()
-            select tenant).Distinct();
+    }
+    public class TenantQueryConfiguration
+        : ObjectType<Tenant>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Tenant> descriptor)
+        {
+            descriptor.Name("Business");
+            descriptor.BindFieldsExplicitly();
+            descriptor.Field(x => x.Id);
+            descriptor.Field(x => x.CanonicalName).Name("name");
+            descriptor.Field(x => x.DisplayName);
+            descriptor.Field(x => x.Logo);
+            descriptor.Field(x => x.Email);
+            descriptor.Field(x => x.Phone);
+            descriptor.Field(x => x.Fax);
+            descriptor.Field(x => x.Mobile);
+            descriptor.Field(x => x.TollFree);
+            descriptor.Field(x => x.Website);
+            descriptor.Field(x => x.Country);
+            descriptor.Field(x => x.Currency);
+            descriptor.Field(x => x.TenantTypeId).Name("businessTypeId");
+            descriptor.Field(x => x.IndustryId);
+            descriptor.Field(x => x.State);
+        }
     }
 }

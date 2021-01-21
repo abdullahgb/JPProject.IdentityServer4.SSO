@@ -17,12 +17,11 @@ namespace Bk.Application
         public static IServiceCollection AddCustomGraphQL(this IServiceCollection services, string path = "/graphql")
         {
             Path = path;
-            var types = new[] {typeof(BusinessQueryType), typeof(WorkerQueryType),};
+            var types = new[] { typeof(BusinessQueryType), typeof(UserQueryType), };
             var graphqlServer = services
                 .AddGraphQLServer()
-                .AddType<SessionRootQuery>()
-                .AddType<SessionConfiguration>()
-                .AddType<Session>()
+                .AddType<UserQueryConfiguration>()
+                .AddType<TenantQueryConfiguration>()
                 .AddFiltering()
                 .AddSorting()
                 .AddProjections()
@@ -35,11 +34,15 @@ namespace Bk.Application
                         var authenticateResult =
                             await ctx.AuthenticateAsync("Bearer");
                         if (authenticateResult.Succeeded)
+                        {
                             ctx.User = authenticateResult.Principal;
+                            builder.SetProperty("session", new OAuthSession(ctx.User));
+                        }
+                            
                     }
                 })
                 .AddQueryType<Query>();
-            types.ForEach(x=> graphqlServer.AddType(x));
+            types.ForEach(x => graphqlServer.AddType(x));
             services.AddErrorFilter<GraphQlErrorFilter>();
             return services;
         }
