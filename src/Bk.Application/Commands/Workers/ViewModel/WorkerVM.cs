@@ -4,7 +4,7 @@ using Bk.Common.ViewModels;
 using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
-namespace Application.Base.Workers.ViewModel
+namespace Bk.Application.Commands.Workers.ViewModel
 {
 	public class WorkerVm : AuditViewModel, IBaseViewModel
 	{

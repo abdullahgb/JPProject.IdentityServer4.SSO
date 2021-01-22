@@ -64,62 +64,40 @@ namespace Jp.Database.Context
         private void ConfigureIdentityContext(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<RoleIdentity>().ToTable(TableConsts.IdentityRoles);
-            builder.Entity<IdentityRoleClaim<string>>().ToTable(TableConsts.IdentityRoleClaims);
-            builder.Entity<UserIdentity>().ToTable(TableConsts.IdentityUsers);
-            builder.Entity<UserRoleIdentity>().ToTable(TableConsts.IdentityUserRoles);
-            builder.Entity<UserRoleIdentity>()
-                .HasOne(c => c.User)
-                .WithMany(e => e.UserRoles)
-                .HasForeignKey(e => e.UserId)
-                .IsRequired();
-            builder.Entity<UserRoleIdentity>()
-                .HasOne(c => c.Role)
-                .WithMany(e => e.UserRoles)
-                .HasForeignKey(e => e.RoleId)
-                .IsRequired();
-            builder.Entity<UserRoleIdentity>()
-                .HasOne(c => c.Tenant)
-                .WithMany(e => e.UserRoles)
-                .HasForeignKey(e => e.TenantId)
-                .IsRequired();
-            builder.Entity<IdentityUserLogin<string>>().ToTable(TableConsts.IdentityUserLogins);
-            builder.Entity<IdentityUserClaim<string>>().ToTable(TableConsts.IdentityUserClaims);
-            builder.Entity<IdentityUserToken<string>>().ToTable(TableConsts.IdentityUserTokens);
+
 
             builder.ConfigureClientContext(_storeOptions);
             builder.ConfigureResourcesContext(_storeOptions);
             builder.ConfigurePersistedGrantContext(_operationalOptions);
             builder.ConfigureSsoContext();
             builder.ConfigureEventStoreContext();
+            builder.ConfigureIdentity();
+            builder.ConfigureTenant(out _tenancyModelState);
+           
+            //builder.Entity<Tenant>()
+            //    .HasMany(x => x.UserRoles)
+            //    .WithOne(x => x.Tenant)
+            //    .HasForeignKey(x => x.TenantId)
+            //    .OnDelete(DeleteBehavior.NoAction);
 
-            // MultiTenancyServer configuration.
-            var tenantStoreOptions = new TenantStoreOptions();
-            builder.ConfigureTenantContext<Tenant, string>(tenantStoreOptions);
+            //builder.Entity<UserIdentity>()
+            //    .HasMany(x => x.UserRoles)
+            //    .WithOne(x => x.User)
+            //    .HasForeignKey(x => x.UserId)
+            //    .OnDelete(DeleteBehavior.NoAction);
 
-            // Add multi-tenancy support to model.
-            var tenantReferenceOptions = new TenantReferenceOptions();
-            builder.HasTenancy<string>(tenantReferenceOptions, out _tenancyModelState);
+            //builder.Entity<RoleIdentity>()
+            //    .HasMany(x => x.UserRoles)
+            //    .WithOne(x => x.Role)
+            //    .HasForeignKey(x => x.RoleId)
+            //    .OnDelete(DeleteBehavior.NoAction);
+
+            
 
             // Configure custom properties on Tenant (MultiTenancyServer).
 
             // Configure properties on Role (ASP.NET Core Identity).
-            builder.Entity<UserRoleIdentity>(b =>
-            {
-                b.Ignore("Id");
-                // Add multi-tenancy support to entity.
-                //b.HasTenancy(() => _tenancyContext.Tenant.Id, _tenancyModelState, hasIndex: false);
-                // Primary key
-                b.HasKey(r => new { r.UserId, r.RoleId, r.TenantId });
-
-                //Remove unique index on NormalizedName.
-                b.HasIndex(r => r.UserId).IsUnique(false);
-                b.HasIndex(r => r.RoleId).IsUnique(false);
-                b.HasIndex(r => r.TenantId).IsUnique(false);
-                // Add unique index on TenantId and NormalizedName.
-                b.HasIndex("TenantId", "RoleId", "UserId")
-                    .HasName("TenantUserRoleIndex").IsUnique();
-            });
+            
         }
 
         public Task<int> SaveChangesAsync()
@@ -150,16 +128,80 @@ namespace Jp.Database.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            optionsBuilder.UseLazyLoadingProxies(false);
             base.OnConfiguring(optionsBuilder);
         }
     }
-    public class SsoCommandContext : SsoContext
+    public class SsoCommandContext : MultitenantIdentityDbContext
     {
-        public SsoCommandContext(DbContextOptions<SsoContext> options, ConfigurationStoreOptions storeOptions, OperationalStoreOptions operationalOptions, ILogger<SsoContext> logger, ITenancyContext<Tenant> tenancyContext = null) : base(options, storeOptions, operationalOptions, logger, tenancyContext) { }
+        public DbSet<Tenant> Tenants { get; set; }
+        public SsoCommandContext(DbContextOptions<SsoCommandContext> options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
             base.OnConfiguring(optionsBuilder);
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.ConfigureIdentity();
+        }
+    }
+
+    public static class ContextExtensions
+    {
+        public static void ConfigureIdentity(this ModelBuilder builder)
+        {
+            builder.Entity<RoleIdentity>().ToTable(TableConsts.IdentityRoles);
+            builder.Entity<IdentityRoleClaim<string>>().ToTable(TableConsts.IdentityRoleClaims);
+            builder.Entity<UserIdentity>().ToTable(TableConsts.IdentityUsers);
+            builder.Entity<UserRoleIdentity>().ToTable(TableConsts.IdentityUserRoles);
+            builder.Entity<IdentityUserLogin<string>>().ToTable(TableConsts.IdentityUserLogins);
+            builder.Entity<IdentityUserClaim<string>>().ToTable(TableConsts.IdentityUserClaims);
+            builder.Entity<IdentityUserToken<string>>().ToTable(TableConsts.IdentityUserTokens);
+            builder.Entity<UserRoleIdentity>()
+                .HasOne(c => c.User)
+                .WithMany(e => e.UserRoles)
+                .HasForeignKey(e => e.UserId)
+                .IsRequired();
+            builder.Entity<UserRoleIdentity>()
+                .HasOne(c => c.Role)
+                .WithMany(e => e.UserRoles)
+                .HasForeignKey(e => e.RoleId)
+                .IsRequired();
+            builder.Entity<UserRoleIdentity>()
+                .HasOne(c => c.Tenant)
+                .WithMany(e => e.UserRoles)
+                .HasForeignKey(e => e.TenantId)
+                .IsRequired();
+
+            builder.Entity<UserRoleIdentity>(b =>
+            {
+                b.Ignore("Id");
+                // Add multi-tenancy support to entity.
+                //b.HasTenancy(() => _tenancyContext.Tenant.Id, _tenancyModelState, hasIndex: false);
+                // Primary key
+                b.HasKey(r => new { r.UserId, r.RoleId, r.TenantId });
+
+                //Remove unique index on NormalizedName.
+                b.HasIndex(r => r.UserId).IsUnique(false);
+                b.HasIndex(r => r.RoleId).IsUnique(false);
+                b.HasIndex(r => r.TenantId).IsUnique(false);
+                // Add unique index on TenantId and NormalizedName.
+                b.HasIndex("TenantId", "RoleId", "UserId")
+                    .HasName("TenantUserRoleIndex").IsUnique();
+            });
+        }
+        public static void ConfigureTenant(this ModelBuilder builder,out TenancyModelState<string> tenancyModelState)
+        {
+             // MultiTenancyServer configuration.
+            var tenantStoreOptions = new TenantStoreOptions();
+            builder.ConfigureTenantContext<Tenant, string>(tenantStoreOptions);
+
+            // Add multi-tenancy support to model.
+            var tenantReferenceOptions = new TenantReferenceOptions();
+            builder.HasTenancy<string>(tenantReferenceOptions, out tenancyModelState);
         }
     }
 }

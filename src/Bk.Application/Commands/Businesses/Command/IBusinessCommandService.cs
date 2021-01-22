@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Application.Base.Businesses.ViewModel;
+using Bk.Application.Commands.Businesses.ViewModel;
 using Bk.Common.Commands;
 
-namespace Application.Base.Businesses.Command
+namespace Bk.Application.Commands.Businesses.Command
 {
     public interface IBusinessCommandService: ICommandService
     {

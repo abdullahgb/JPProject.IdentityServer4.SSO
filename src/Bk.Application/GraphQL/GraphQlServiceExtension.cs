@@ -1,27 +1,25 @@
-﻿using System.Linq;
-using Bk.Application.QueryTypes;
-using Bk.Application.SessionExtension;
+﻿using System;
+using System.Linq;
+using Bk.Application.Common;
 using Bk.Common.ArrayUtils;
+using Bk.Common.GraphQL;
 using HotChocolate.AspNetCore.Voyager;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bk.Application
+namespace Bk.Application.GraphQL
 {
     public static class GraphQlServiceExtension
     {
         public static string Path { get; private set; }
         // ReSharper disable once InconsistentNaming
-        public static IServiceCollection AddCustomGraphQL(this IServiceCollection services, string path = "/graphql")
+        public static IServiceCollection RegiserGraphQL(this IServiceCollection services, Type[] types, string path = "/graphql")
         {
             Path = path;
-            var types = new[] { typeof(BusinessQueryType), typeof(UserQueryType), };
             var graphqlServer = services
-                .AddGraphQLServer()
-                .AddType<UserQueryConfiguration>()
-                .AddType<TenantQueryConfiguration>()
+                .AddGraphQLServer().BindRuntimeType<Guid, GuidTypeConverter>()
                 .AddFiltering()
                 .AddSorting()
                 .AddProjections()
@@ -41,8 +39,11 @@ namespace Bk.Application
                             
                     }
                 })
-                .AddQueryType<Query>();
-            types.ForEach(x => graphqlServer.AddType(x));
+                .AddQueryType<Query>()
+                .AddMutationType<Mutation>();
+            types
+                .Where(type => typeof(IGraphQLType).IsAssignableFrom(type) && !type.IsInterface)
+                .ForEach(type => graphqlServer.AddType(type));
             services.AddErrorFilter<GraphQlErrorFilter>();
             return services;
         }

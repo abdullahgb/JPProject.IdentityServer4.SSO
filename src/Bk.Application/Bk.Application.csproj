@@ -6,7 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.4.3" />
-    <PackageReference Include="Bk.Common" Version="1.0.6.54" />
+    <PackageReference Include="Bk.Common" Version="1.0.6.57" />
+    <PackageReference Include="Bk.Rebus.EventBus" Version="1.0.4" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="11.0.6" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="11.0.6" />
     <PackageReference Include="HotChocolate.AspNetCore.Voyager" Version="10.5.5" />

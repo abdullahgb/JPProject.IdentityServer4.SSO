@@ -1,4 +1,5 @@
-﻿using Bk.Common.Claims;
+﻿using System.Collections.Generic;
+using Bk.Common.Claims;
 using Bk.Common.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,13 +17,13 @@ namespace Jp.Api.Management.Configuration.Authorization
                         .RequireClaim("tid"));
                 options.AddPolicy("TenantOwner", policy =>
                     policy
-                        .RequireClaim(OpenIdRoles.TenantId)
+                        .RequireClaim(OpenIdClaims.TenantId)
                         .RequireRole(
                             ApplicationRoles.Owner
                         ));
                 options.AddPolicy("TenantAdministration", policy =>
                     policy
-                        .RequireClaim("http://schemas.microsoft.com/identity/claims/tenantid")
+                        .RequireClaim(OpenIdClaims.TenantId)
                         .RequireRole(
                             ApplicationRoles.Owner,
                                 ApplicationRoles.Finance.Admin,
@@ -35,7 +36,7 @@ namespace Jp.Api.Management.Configuration.Authorization
                         ));
                 options.AddPolicy("TenantManagement", policy =>
                     policy
-                        .RequireClaim("http://schemas.microsoft.com/identity/claims/tenantid")
+                        .RequireClaim(OpenIdClaims.TenantId)
                         .RequireRole(
                             ApplicationRoles.Owner,
                             ApplicationRoles.Finance.Admin,
@@ -50,6 +51,12 @@ namespace Jp.Api.Management.Configuration.Authorization
                             ApplicationRoles.TrackingAgent.Admin,
                             ApplicationRoles.TrackingAgent.Manager
                         ));
+                options.AddPolicy("Default",
+                    policy =>
+                    {
+                        policy.Requirements.Add(new AccountRequirement());
+                        policy.AuthenticationSchemes = new List<string> { "Bearer" };
+                    });
             });
             services.AddSingleton<IAuthorizationHandler, AccountRequirementHandler>();
         }

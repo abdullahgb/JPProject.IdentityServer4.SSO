@@ -10,5 +10,6 @@ namespace Jp.Database.Context
         IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
         public MultitenantIdentityDbContext(DbContextOptions<SsoContext> options):base(options){}
+        public MultitenantIdentityDbContext(DbContextOptions<SsoCommandContext> options):base(options){}
     }
 }

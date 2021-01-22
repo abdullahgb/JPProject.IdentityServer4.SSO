@@ -1,10 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Application.Base.Workers.ViewModel;
-using Application.Common;
+﻿using System.Threading.Tasks;
+using Bk.Application.Commands.Workers.ViewModel;
 using Bk.Common.Commands;
 
-namespace Application.Base.Workers.Command
+namespace Bk.Application.Commands.Workers.Command
 {
     public interface IWorkerCommandService:ICommandService
     {

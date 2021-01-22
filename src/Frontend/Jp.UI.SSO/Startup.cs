@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using Bk.Application;
+using Bk.Application.GraphQL;
 using Bk.Common.Environments;
 using Bk.Common.EventBus;
 using Bk.Rebus.EventBus;
@@ -53,7 +54,7 @@ namespace Jp.UI.SSO
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            _env.SetEnv();
+            _env.SetDefault();
             services.AddHttpContextAccessor();
             services.AddControllersWithViews()
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, opts => { opts.ResourcesPath = "Resources"; })
@@ -80,6 +81,7 @@ namespace Jp.UI.SSO
 
             // Dbcontext config
             services.ConfigureProviderForContext<SsoContext>(DetectDatabase);
+            services.ConfigureProviderForContext<SsoCommandContext>(DetectDatabase);
             services.ConfigureProviderForContext<SsoQueryContext>(DetectDatabase);
             //services.ConfigureProviderForPooledContext<SsoQueryContext>(DetectDatabase);
 
@@ -133,9 +135,7 @@ namespace Jp.UI.SSO
             ConfigureMultiTenantServices(services);
             ConfigureApiManagementServices(services);
             ConfigureIdentityServices(services);
-            services.AddRebusEventBus(new SqlServerBusConfig(Configuration.GetValue<string>("EventBusConfiguration:ConnectionString"),"AuthQueue"));
-            services.AddScoped<IEventBus, EventBus>();
-            services.AddCustomGraphQL();
+            services.RegisterBkApplicationServices(Configuration);
         }
 
         public void ConfigureIdentityServices(IServiceCollection services)

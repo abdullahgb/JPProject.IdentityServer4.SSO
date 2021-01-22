@@ -2,7 +2,7 @@
 using Bk.Common.Repositories;
 using JPProject.Sso.AspNetIdentity.Models;
 
-namespace Application.Base.Businesses.Repository
+namespace Bk.Application.Commands.Businesses.Repository
 {
     public interface IBusinessRepository : IRepository
     {

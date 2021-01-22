@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Bk.Common.ViewModels;
 using JPProject.Sso.AspNetIdentity.Models;
 using Validation = JPProject.Sso.AspNetIdentity.Models.QuickValidator.Business;
 
-namespace Application.Base.Businesses.ViewModel
+namespace Bk.Application.Commands.Businesses.ViewModel
 {
 	public class BusinessVm : IBaseViewModel
 	{

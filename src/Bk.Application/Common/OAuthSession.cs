@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using Bk.Common.Claims;
-using Bk.Common.Roles;
-using Jp.Database;
 
-namespace Bk.Application.SessionExtension
+namespace Bk.Application.Common
 {
     public class OAuthSession
     {
@@ -39,7 +37,7 @@ namespace Bk.Application.SessionExtension
             get
             {
                 if (_tenantId != null) return _tenantId.Value;
-                _tenantId = Guid.Parse(Claims.FindFirst(OpenIdRoles.TenantId)?
+                _tenantId = Guid.Parse(Claims.FindFirst(OpenIdClaims.TenantId)?
                     .Value ?? throw new KeyNotFoundException("Tenant ID does not exist in Claims"));
                 return _tenantId.Value;
             }

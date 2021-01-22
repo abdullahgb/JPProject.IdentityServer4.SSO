@@ -2,17 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Bk.Common.Roles;
-using Microsoft.EntityFrameworkCore;
 using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Application.Base.Businesses.Repository
+namespace Bk.Application.Commands.Businesses.Repository
 {
     public class BusinessRepository : IBusinessRepository
     {
-        private readonly SsoContext _commandContext;
+        private readonly SsoCommandContext _commandContext;
         private readonly DbSet<Tenant> _tenants;
-        public BusinessRepository(SsoContext commandContext)
+        public BusinessRepository(SsoCommandContext commandContext)
         {
             _commandContext = commandContext;
             _tenants = commandContext.Tenants;

@@ -3,7 +3,7 @@ using AspectInjector.Broker;
 using Bk.Common.Services;
 using Bk.Common.ViewModels;
 
-namespace Application.Common
+namespace Bk.Application.Common
 {
     [Aspect(Scope.Global)]
     [Injection(typeof(ValidateAttribute))]

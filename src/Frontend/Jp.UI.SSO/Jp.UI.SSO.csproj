@@ -8,9 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Bk.Common" Version="1.0.6.54" />
-    <PackageReference Include="Bk.Common.EventBus" Version="1.0.0" />
-    <PackageReference Include="Bk.Rebus.EventBus" Version="1.0.4" />
     <!--<PackageReference Include="JPProject.AspNet.Core" Version="3.2.10-prerelease1.07-04-161958" />-->
     <PackageReference Include="JpProject.AspNetCore.PasswordHasher.Argon2" Version="3.0.3" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
-using Bk.Application.SessionExtension;
+using Bk.Application.Common;
+using Bk.Common.GraphQL;
 using Bk.Common.Roles;
 using HotChocolate;
 using HotChocolate.AspNetCore.Authorization;
@@ -7,13 +8,11 @@ using HotChocolate.Data;
 using HotChocolate.Types;
 using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models;
-using JPProject.Sso.AspNetIdentity.Models.Identity;
-using Microsoft.AspNetCore.Http;
 
-namespace Bk.Application.QueryTypes
+namespace Bk.Application.GraphQL.QueryTypes
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class BusinessQueryType
+    public class BusinessQueryType: IGraphQLType
     {
         [Authorize(Policy = "TenantOwner")]
         [UseProjection]
@@ -34,8 +33,8 @@ namespace Bk.Application.QueryTypes
             where userRole.UserId == session.SubjectId.ToString()
             select tenant).Distinct();
     }
-    public class TenantQueryConfiguration
-        : ObjectType<Tenant>
+    public class BusinessQueryConfiguration
+        : ObjectType<Tenant>,IGraphQLType
     {
         protected override void Configure(IObjectTypeDescriptor<Tenant> descriptor)
         {

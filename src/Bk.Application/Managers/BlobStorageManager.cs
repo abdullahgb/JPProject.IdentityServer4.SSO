@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Bk.Common.Configurations;
+using Bk.Common.Environments;
 using Bk.Common.StringUtils;
 using JPProject.Sso.AspNetIdentity.Models;
 using Microsoft.AspNetCore.Http;
@@ -83,7 +85,7 @@ namespace Bk.Application.Managers
 
         public async Task<bool> IsExists(string path)
         {
-            var fileName = $"{_settings.Environment}/{path}";
+            var fileName = $"{ApplicationEnvironment.Name}/{path}";
             await foreach (var blobItem in _containerClient.GetBlobsAsync())
             {
                 if (string.Equals(blobItem.Name, fileName, StringComparison.CurrentCultureIgnoreCase)) return true;

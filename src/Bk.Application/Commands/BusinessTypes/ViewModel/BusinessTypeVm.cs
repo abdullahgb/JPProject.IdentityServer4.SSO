@@ -1,6 +1,6 @@
 ﻿using JPProject.Sso.AspNetIdentity.Models;
 
-namespace Application.Base.BusinessTypes.ViewModel
+namespace Bk.Application.Commands.BusinessTypes.ViewModel
 {
     public class BusinessTypeVm
     {

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
-using Bk.Application.SessionExtension;
+using Bk.Application.Common;
+using Bk.Common.GraphQL;
 using HotChocolate;
 using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Data;
@@ -8,12 +9,11 @@ using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
-namespace Bk.Application.QueryTypes
+namespace Bk.Application.GraphQL.QueryTypes
 {
     
-    public class UserQueryType
+    public class UserQueryType: IGraphQLType
     {
-        public string Version = "1.0";
 
         [Authorize]
         [UseProjection]
@@ -26,7 +26,7 @@ namespace Bk.Application.QueryTypes
 
     }
     public class UserQueryConfiguration
-        : ObjectType<UserIdentity>
+        : ObjectType<UserIdentity>, IGraphQLType
     {
         protected override void Configure(IObjectTypeDescriptor<UserIdentity> descriptor)
         {

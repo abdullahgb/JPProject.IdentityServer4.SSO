@@ -1,4 +1,4 @@
-﻿namespace Application.Base.Industries.ViewModel
+﻿namespace Bk.Application.Commands.Industries.ViewModel
 {
     public class IndustryVm
     {

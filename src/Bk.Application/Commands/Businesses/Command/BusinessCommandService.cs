@@ -1,49 +1,42 @@
 using System;
 using System.Threading.Tasks;
-using Application.Base.Admins.Repository;
-using Application.Base.Businesses.Repository;
-using Application.Base.Businesses.ViewModel;
-using Application.Common;
-using AutoMapper;
-using Bk.Application.Commands.Roles;
+using Bk.Application.Commands.Businesses.Repository;
+using Bk.Application.Commands.Businesses.ViewModel;
+using Bk.Application.Commands.Users.Command;
+using Bk.Application.Commands.Users.Repository;
+using Bk.Application.Common;
 using Bk.Application.Managers;
 using Bk.Common.EventBus;
 using Bk.Common.Exceptions;
-using Bk.Common.Roles;
 using Bk.Common.Services;
 using JPProject.Sso.AspNetIdentity.Models;
 
-namespace Application.Base.Businesses.Command
+namespace Bk.Application.Commands.Businesses.Command
 {
     [Validate]
     public class BusinessCommandService : BaseService, IBusinessCommandService
     {
-        private readonly IMapper _mapper;
-        private readonly IRoleRepository _roleRepository;
         private readonly IBusinessRepository _businessRepository;
-        private readonly IAdminRepository _adminRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IBlobStorageManager _blobStorageManager;
         private readonly IEventBus _eventBus;
-        private static NotFoundException BusinessNotFound(Guid businessId) =>
+        public static NotFoundException BusinessNotFound(Guid businessId) =>
             new NotFoundException($"Businesses Not Found against Id: {businessId}");
-        private static NotFoundException UserNotFound(Guid adminId) =>
-            new NotFoundException($"User Not Found against Id: {adminId}");
-        private static ConflictException BusinessNameConflict(string name) =>
+
+        public static ConflictException BusinessNameConflict(string name) =>
             new ConflictException($"Business already exists against name {name}");
 
-        public BusinessCommandService(IMapper mapper, IRoleRepository roleRepository, IBusinessRepository businessRepository, IBlobStorageManager blobStorageManager, IAdminRepository adminRepository, IEventBus eventBus)
+        public BusinessCommandService(IBusinessRepository businessRepository, IBlobStorageManager blobStorageManager, IUserRepository userRepository, IEventBus eventBus)
         {
-            _mapper = mapper;
-            _roleRepository = roleRepository;
             _businessRepository = businessRepository;
             _blobStorageManager = blobStorageManager;
-            _adminRepository = adminRepository;
+            _userRepository = userRepository;
             _eventBus = eventBus;
         }
         public async Task<string> CreateBusiness(CreateBusinessVm vm)
         {
             // Check If Businesses Exists in BusinessRepository
-            var admin = await _adminRepository.GetById(vm.OwnerId) ?? throw UserNotFound(vm.OwnerId);
+            var admin = await _userRepository.GetById(vm.OwnerId) ?? throw UserCommandService.UserNotFound(vm.OwnerId);
 
             if (await _businessRepository.IsNameDuplicate(vm.Name)) throw BusinessNameConflict(vm.Name);
             // Create in AggregateRoot
@@ -52,7 +45,7 @@ namespace Application.Base.Businesses.Command
             admin.CreateBusiness(business);
 
             // Save Changes in BusinessRepository
-            await _adminRepository.SaveChanges();
+            await _userRepository.SaveChanges();
 
             return business.Id;
         }
@@ -73,7 +66,7 @@ namespace Application.Base.Businesses.Command
         public async Task Archive(Guid ownerId, Guid businessId)
         {
             // Get AggregateRoot from businessRepository
-            var admin = await _adminRepository.GetById(ownerId) ?? throw UserNotFound(ownerId);
+            var admin = await _userRepository.GetById(ownerId) ?? throw UserCommandService.UserNotFound(ownerId);
 
             // Check If Businesses Exists in businessRepository
             var business = await _businessRepository.GetById(businessId.ToString());
@@ -82,12 +75,12 @@ namespace Application.Base.Businesses.Command
             business.Archive();
 
             // Save Changes in businessRepository
-            await _adminRepository.SaveChanges();
+            await _userRepository.SaveChanges();
         }
         public async Task Restore(Guid adminId, Guid businessId)
         {
             // Get AggregateRoot from businessRepository
-            var admin = await _adminRepository.GetById(adminId) ?? throw UserNotFound(adminId);
+            var admin = await _userRepository.GetById(adminId) ?? throw UserCommandService.UserNotFound(adminId);
 
             // Check If Businesses Exists in businessRepository
             var business = await _businessRepository.GetById(businessId.ToString());
@@ -96,7 +89,7 @@ namespace Application.Base.Businesses.Command
             business.Restore();
 
             // Save Changes in businessRepository
-            await _adminRepository.SaveChanges();
+            await _userRepository.SaveChanges();
         }
 
         [Obsolete]

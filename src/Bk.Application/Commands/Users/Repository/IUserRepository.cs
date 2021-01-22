@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bk.Common.Repositories;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
-namespace Application.Base.Admins.Repository
+namespace Bk.Application.Commands.Users.Repository
 {
-    public interface IAdminRepository : IRepository
+    public interface IUserRepository : IRepository
     {
         Task<UserIdentity> GetById(Guid id);
+        Task<UserIdentity> GetById(Guid id,Guid businessId);
+        Task<bool> HasRole(Guid businessId, Guid id, List<string> appRoles);
         void Add(UserIdentity admin);
         Task<bool> IsEmailDuplicate(string email);
         Task<bool> IsEmailDuplicateExceptUser(Guid userId, string email);
