@@ -58,6 +58,15 @@ namespace Jp.UI.SSO.Configuration
                         };
                     });
             }
+            if (configuration.GetSection("ExternalLogin:Microsoft").Exists())
+            {
+                authBuilder.AddMicrosoftAccount("Microsoft", options =>
+                {
+                    options.ClientId = configuration.GetValue<string>("ExternalLogin:Microsoft:ClientId");
+                    options.ClientSecret = configuration.GetValue<string>("ExternalLogin:Microsoft:ClientSecret");
+                    options.SaveTokens = true;  
+                });
+            }
 
             if (configuration.GetSection("ExternalLogin:OpenIdConnect").Exists())
             {
