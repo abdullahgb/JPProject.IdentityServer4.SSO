@@ -12,6 +12,7 @@ namespace Bk.Application.Commands.Users.Command
         //Task<Guid> CreateAdmin(CreateUser vm);
         Task UpdateAdmin(UpdateUser vm);
         Task AssignUserRoles(AssignUserRoles vm);
+        Task SyncActiveDirectoryUsers(SyncActiveDirectory vm);
         Task<UserIdentity> UpdatePhoto(Guid id, string fileName, Stream stream);
         Task Archive(Guid id);
         Task Restore(Guid adminId);

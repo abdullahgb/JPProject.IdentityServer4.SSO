@@ -1,6 +1,6 @@
 ﻿using Bk.Common.EventBus.Events;
 
-namespace Bk.Auth.Events
+namespace Bk.Auth.Events.Business
 {
     public class BusinessCreated : IIntegrationEvent
     {

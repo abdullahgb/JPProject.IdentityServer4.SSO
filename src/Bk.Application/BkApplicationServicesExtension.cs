@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Bk.Application.GraphQL;
-using Bk.Application.Managers;
+using Bk.Application.Infrastructures.ActiveDirectory;
+using Bk.Application.Infrastructures.BlobStorage;
 using Bk.Common.ArrayUtils;
 using Bk.Common.Commands;
 using Bk.Common.Configurations;
@@ -9,7 +10,6 @@ using Bk.Common.EventBus;
 using Bk.Common.Repositories;
 using Bk.Rebus.EventBus;
 using Bk.Rebus.EventBus.Configurations;
-using Jp.Database.Context;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +21,9 @@ namespace Bk.Application
         {
             var section = configuration.GetSection("AppSettings");
             services.Configure<BlobSettings>(section.GetSection("Blob"));
-            services.Configure<AppSettings>(section);
+            services.Configure<AzureApp>(section.GetSection("ExternalLogin:Microsoft"));
+            services.AddScoped<IActiveDirectoryService, ActiveDirectoryService>();
+            services.AddScoped<IBlobStorageManager, BlobStorageManager>();
 
             var types = typeof(Query).Assembly.GetTypes();
 
@@ -29,7 +31,7 @@ namespace Bk.Application
             services.RegiserGraphQL(types);
             services.RegisterRepositories(types);
             services.RegisterCommands(types);
-            services.AddScoped<IBlobStorageManager,BlobStorageManager>();
+            
             return services;
         }
 

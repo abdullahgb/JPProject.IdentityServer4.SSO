@@ -73,31 +73,6 @@ namespace Jp.Database.Context
             builder.ConfigureEventStoreContext();
             builder.ConfigureIdentity();
             builder.ConfigureTenant(out _tenancyModelState);
-           
-            //builder.Entity<Tenant>()
-            //    .HasMany(x => x.UserRoles)
-            //    .WithOne(x => x.Tenant)
-            //    .HasForeignKey(x => x.TenantId)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
-            //builder.Entity<UserIdentity>()
-            //    .HasMany(x => x.UserRoles)
-            //    .WithOne(x => x.User)
-            //    .HasForeignKey(x => x.UserId)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
-            //builder.Entity<RoleIdentity>()
-            //    .HasMany(x => x.UserRoles)
-            //    .WithOne(x => x.Role)
-            //    .HasForeignKey(x => x.RoleId)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
-            
-
-            // Configure custom properties on Tenant (MultiTenancyServer).
-
-            // Configure properties on Role (ASP.NET Core Identity).
-            
         }
 
         public Task<int> SaveChangesAsync()

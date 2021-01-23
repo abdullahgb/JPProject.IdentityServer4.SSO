@@ -8,25 +8,23 @@ using Azure.Storage.Blobs.Specialized;
 using Bk.Common.Configurations;
 using Bk.Common.Environments;
 using Bk.Common.StringUtils;
-using JPProject.Sso.AspNetIdentity.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Bk.Application.Managers
+namespace Bk.Application.Infrastructures.BlobStorage
 {
    public class BlobStorageManager : IBlobStorageManager
     {
-        private readonly BlobSettings _settings;
         private readonly BlobContainerClient _containerClient;
         private readonly string _containerUri;
         public BlobStorageManager(IOptions<BlobSettings> options)
         {
-            _settings = options.Value;
-            if (_settings == null || _settings.ConnectionString.IsNullOrEmpty())
+            var settings = options.Value;
+            if (settings == null || settings.ConnectionString.IsNullOrEmpty())
                 throw new Exception("Blob Connection string not found");
 
-            var client = new BlobServiceClient(_settings.ConnectionString);
-            _containerClient = client.GetBlobContainerClient($"{_settings.QfBlobContainer}");
+            var client = new BlobServiceClient(settings.ConnectionString);
+            _containerClient = client.GetBlobContainerClient($"{settings.QfBlobContainer}");
             _containerClient.CreateIfNotExists(PublicAccessType.BlobContainer);
             _containerUri = _containerClient.Uri.ToString();
 

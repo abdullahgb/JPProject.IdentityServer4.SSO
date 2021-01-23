@@ -272,6 +272,7 @@ namespace Jp.Database.Migrations
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MicrosoftTenantId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CanonicalName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedCanonicalName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -293,6 +294,7 @@ namespace Jp.Database.Migrations
                     Pic = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MultitenantEnabled = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),

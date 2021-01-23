@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bk.Common.Roles;
@@ -20,6 +21,13 @@ namespace Bk.Application.Commands.Businesses.Repository
 
         public Task<Tenant> GetById(string businessId) 
             => _tenants.FirstOrDefaultAsync(x => x.Id == businessId);
+
+        public Task<List<string>> GetUserEmails(string businessId)
+            => (from tenant in _tenants
+                join userRole in _commandContext.UserRoles on tenant.Id equals userRole.TenantId
+                join user in _commandContext.Users on userRole.UserId equals user.Id
+                where tenant.Id == businessId
+                select user.Email).Distinct().ToListAsync();
 
         public Task<Tenant> GetOwnedById(string businessId)
             => (from tenant in _tenants

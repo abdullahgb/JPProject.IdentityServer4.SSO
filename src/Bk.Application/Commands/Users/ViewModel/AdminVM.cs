@@ -57,4 +57,12 @@ namespace Bk.Application.Commands.Users.ViewModel
         [Required]
         public List<string> Roles { get; set; } = new List<string>();
     }
+
+    public class SyncActiveDirectory : IBaseViewModel
+    {
+        [Required]
+        public Guid Id { get; set; }
+        [Required]
+        public Guid BusinessId { get; set; }
+    }
 }

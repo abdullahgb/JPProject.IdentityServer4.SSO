@@ -25,7 +25,7 @@ namespace Jp.Database
              options => options.UseMySql(_connectionString,ServerVersion.AutoDetect(_connectionString), sql => sql.MigrationsAssembly(MigrationAssembly));
 
         public Action<DbContextOptionsBuilder> Postgre =>
-             options => options.UseNpgsql(_connectionString, sql => sql.MigrationsAssembly(MigrationAssembly));
+             options => new DbContextOptionsBuilder();
 
         public Action<DbContextOptionsBuilder> Sqlite =>
             options => options.UseSqlite(_connectionString, sql => sql.MigrationsAssembly(MigrationAssembly));

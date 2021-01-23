@@ -880,6 +880,9 @@ namespace Jp.Database.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<bool>("MultitenantEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -996,6 +999,9 @@ namespace Jp.Database.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Logo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MicrosoftTenantId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Mobile")

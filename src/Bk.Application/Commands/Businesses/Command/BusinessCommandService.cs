@@ -5,7 +5,7 @@ using Bk.Application.Commands.Businesses.ViewModel;
 using Bk.Application.Commands.Users.Command;
 using Bk.Application.Commands.Users.Repository;
 using Bk.Application.Common;
-using Bk.Application.Managers;
+using Bk.Application.Infrastructures.BlobStorage;
 using Bk.Common.EventBus;
 using Bk.Common.Exceptions;
 using Bk.Common.Services;
@@ -22,7 +22,6 @@ namespace Bk.Application.Commands.Businesses.Command
         private readonly IEventBus _eventBus;
         public static NotFoundException BusinessNotFound(Guid businessId) =>
             new NotFoundException($"Businesses Not Found against Id: {businessId}");
-
         public static ConflictException BusinessNameConflict(string name) =>
             new ConflictException($"Business already exists against name {name}");
 

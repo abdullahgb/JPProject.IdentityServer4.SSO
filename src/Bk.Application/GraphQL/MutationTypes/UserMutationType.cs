@@ -17,5 +17,15 @@ namespace Bk.Application.GraphQL.MutationTypes
             await commandService.AssignUserRoles(model);
             return Ok();
         }
+        [Authorize(Roles = new[] { ApplicationRoles.Owner })]
+        public async Task<string> SyncActiveDirectoryUsers([GraphQLSession] OAuthSession session, [Service] IUserCommandService commandService)
+        {
+            await commandService.SyncActiveDirectoryUsers(new SyncActiveDirectory
+            {
+                Id = session.SubjectId,
+                BusinessId = session.TenantId
+            });
+            return Ok();
+        }
     }
 }

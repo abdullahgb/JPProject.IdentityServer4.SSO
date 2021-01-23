@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace Bk.Application.Managers
+namespace Bk.Application.Infrastructures.BlobStorage
 {
     public interface IBlobStorageManager
     {

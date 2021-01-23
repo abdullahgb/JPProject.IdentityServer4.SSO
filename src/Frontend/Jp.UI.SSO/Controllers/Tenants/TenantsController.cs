@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Bk.Auth.Events;
+using Bk.Auth.Events.Business;
 using Bk.Common.EventBus;
 using Bk.Common.Roles;
 using IdentityModel;

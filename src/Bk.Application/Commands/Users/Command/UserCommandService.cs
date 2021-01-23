@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Bk.Application.Commands.Businesses.Command;
 using Bk.Application.Commands.Businesses.Repository;
 using Bk.Application.Commands.Roles;
 using Bk.Application.Commands.Users.Repository;
 using Bk.Application.Commands.Users.ViewModel;
 using Bk.Application.Common;
-using Bk.Application.Managers;
+using Bk.Application.Infrastructures.ActiveDirectory;
+using Bk.Application.Infrastructures.BlobStorage;
 using Bk.Common.Exceptions;
 using Bk.Common.LinqUtils;
 using Bk.Common.Roles;
 using Bk.Common.Services;
+using Bk.Common.StringUtils;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
 namespace Bk.Application.Commands.Users.Command
@@ -23,18 +26,21 @@ namespace Bk.Application.Commands.Users.Command
         private readonly IBlobStorageManager _blobStorageManager;
         private readonly IBusinessRepository _businessRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IActiveDirectoryService _activeDirectoryService;
 
         public static NotFoundException UserNotFound(Guid adminId) =>
             new NotFoundException($"User Not Found against UserId: {adminId}");
         public static ConflictException ConflictEmail(string email) =>
             new ConflictException($"User already exists against {email}");
 
-        public UserCommandService(IUserRepository userRepository, IBlobStorageManager blobStorageManager, IBusinessRepository businessRepository,IRoleRepository roleRepository)
+        public UserCommandService(IUserRepository userRepository, IBlobStorageManager blobStorageManager,
+            IBusinessRepository businessRepository,IRoleRepository roleRepository, IActiveDirectoryService activeDirectoryService)
         {
 	        _userRepository = userRepository;
             _blobStorageManager = blobStorageManager;
             _businessRepository = businessRepository;
             _roleRepository = roleRepository;
+            _activeDirectoryService = activeDirectoryService;
         }
 
         //public async Task<Guid> CreateAdmin(CreateUser vm)
@@ -81,6 +87,20 @@ namespace Bk.Application.Commands.Users.Command
             }
 
             await _businessRepository.SaveChanges();
+        }
+
+        public async Task SyncActiveDirectoryUsers(SyncActiveDirectory vm)
+        {
+            var business = await _businessRepository.GetById(vm.BusinessId.ToString()) ??
+                           throw BusinessCommandService.BusinessNotFound(vm.BusinessId);
+
+            if (business.MicrosoftTenantId.IsNullOrEmpty())
+                throw new UnprocessableException("No external Tenant ID provided");
+
+            var oldUserEmails = await _businessRepository.GetUserEmails(business.Id);
+            var newUsers = await _activeDirectoryService.GetNewUsers(business.MicrosoftTenantId, oldUserEmails);
+            var noneRole = await _roleRepository.GetRole(ApplicationRoles.None);
+            business.AddUserRoles(newUsers,noneRole);
         }
 
         public async Task Restore(Guid adminId)
