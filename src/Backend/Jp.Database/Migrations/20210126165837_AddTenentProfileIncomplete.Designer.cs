@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Jp.Database.Migrations
 {
     [DbContext(typeof(SsoContext))]
-    [Migration("20210123154920_Dbinit")]
-    partial class Dbinit
+    [Migration("20210126165837_AddTenentProfileIncomplete")]
+    partial class AddTenentProfileIncomplete
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -882,8 +882,10 @@ namespace Jp.Database.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<bool>("MultitenantEnabled")
-                        .HasColumnType("bit");
+                    b.Property<bool?>("MultitenantEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -905,14 +907,16 @@ namespace Jp.Database.Migrations
                     b.Property<string>("Pic")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("ProfileCompleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<bool>("TenantProfileCompleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -920,6 +924,9 @@ namespace Jp.Database.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("UserProfileCompleted")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -944,6 +951,11 @@ namespace Jp.Database.Migrations
 
                     b.Property<string>("TenantId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.HasKey("UserId", "RoleId", "TenantId");
 

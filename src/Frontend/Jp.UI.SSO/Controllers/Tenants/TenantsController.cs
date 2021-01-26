@@ -110,7 +110,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 ModelState.AddModelError("Conflict","Business name already exist");
                 return View();
             }
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            //await using var transaction = await _context.Database.BeginTransactionAsync();
             // Create new tenant
             var newTenant = new Tenant(vm.Name,vm.Name,vm.Country,vm.Currency,TenantTypes.GENERIC,Industries.SoleProprietorShip);
             await _tenantManager.CreateAsync(newTenant);
@@ -128,9 +128,10 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 ApplicationRoles.TrackingAgent.Admin
             };
             await _userManager.AddToRolesAsync(user, newTenant, roles);
-            user.CompleteProfile();
+            user.CompleteUserProfile();
+            user.CompleteTenantProfile();
             await _userManager.UpdateAsync(user);
-            await transaction.CommitAsync();    
+            //await transaction.CommitAsync();    
             var @event = new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName, user.Email);
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);

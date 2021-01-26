@@ -116,6 +116,7 @@ namespace Jp.UI.SSO.Controllers.Account
             ViewBag.returnUrl = returnUrl;
             return View(new RegisterViewModel
             {
+                VisibleExternalProviders =  new []{new ExternalProvider{DisplayName = "microsoft",AuthenticationScheme = "Microsoft"} },
                 ReturnUrl = returnUrl
             });
         }
@@ -444,7 +445,101 @@ namespace Jp.UI.SSO.Controllers.Account
                 return Challenge(props, provider);
             }
         }
+        /// <summary>
+        /// initiate roundtrip to external authentication provider
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> ExternalSignup(string provider, string returnUrl)
+        {
+            if (returnUrl.IsMissing()) returnUrl = "~/";
 
+            // validate returnUrl - either it is a valid OIDC URL or back to a local page
+            if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
+            {
+                // user might have clicked on a malicious link - should be logged
+                throw new Exception("invalid return URL");
+            }
+
+            if (AccountOptions.WindowsAuthenticationSchemeName == provider)
+            {
+                // windows authentication needs special handling
+                return await ProcessWindowsLoginAsync(returnUrl);
+            }
+            else
+            {
+                // start challenge and roundtrip the return URL and 
+                var props = new AuthenticationProperties()
+                {
+                    RedirectUri = Url.Action(nameof(ExternalSignupCallback)),
+                    Items =
+                    {
+                        { "returnUrl", returnUrl },
+                        { "scheme", provider },
+                    }
+                };
+                return Challenge(props, provider);
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> ExternalSignupCallback()
+        {
+            // read external identity from the temporary cookie
+            var result = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
+            if (result?.Succeeded != true)
+            {
+                throw new Exception("External authentication error");
+            }
+
+            // lookup our user and external provider info
+            var (user, provider, providerUserId, claims) = await FindUserFromExternalProviderAsync(result);
+            if(user!=null) return RedirectToAction("LoginError", "Home", new { Error = "User already registered" });
+
+            // this might be where you might initiate a custom workflow for user registration
+            // in this sample we don't show how that would be done, as our sample implementation
+            // simply auto-provisions new external user
+            user = await AutoProvisionUserAsync(provider, providerUserId, claims);
+            if (user == null)
+                return RedirectToAction("LoginError", "Home", new { Error = string.Join(" ", _notifications.GetNotifications().Select(a => $"{a.Key}: {a.Value}")) });
+
+            // this allows us to collect any additonal claims or properties
+            // for the specific prtotocols used and store them in the local auth cookie.
+            // this is typically used to store data needed for signout from those protocols.
+            var additionalLocalClaims = new List<Claim>();
+            var localSignInProps = new AuthenticationProperties();
+            ProcessLoginCallbackForOidc(result, additionalLocalClaims, localSignInProps);
+            ProcessLoginCallbackForWsFed(result, additionalLocalClaims, localSignInProps);
+            ProcessLoginCallbackForSaml2p(result, additionalLocalClaims, localSignInProps);
+
+            // issue authentication cookie for user
+
+            var s = await _userManager.FindByNameAsync(user.UserName);
+            var principal = await _signInManager.CreateUserPrincipalAsync(s);
+            additionalLocalClaims.AddRange(principal.Claims);
+            var name = principal.FindFirst(JwtClaimTypes.Name)?.Value ?? s.Id.ToString();
+
+            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, s.Id.ToString(), name));
+            await HttpContext.SignInAsync(s.Id.ToString(), name, provider, localSignInProps, additionalLocalClaims.ToArray());
+
+            // delete temporary cookie used during external authentication
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            // validate return URL and redirect back to authorization endpoint or a local page
+            var returnUrl = result.Properties.Items["returnUrl"];
+
+            // check if external login is in the context of an OIDC request
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            if (context != null)
+            {
+                if (await _clientStore.IsPkceClientAsync(context.ClientId))
+                {
+                    // if the client is PKCE then we assume it's native, so this change in how to
+                    // return the response is for better UX for the end user.
+                    return View("Redirect", new RedirectViewModel { RedirectUrl = returnUrl });
+                }
+            }
+
+            return Redirect(returnUrl);
+        }
         /// <summary>
         /// Post processing of external authentication
         /// </summary>
@@ -460,8 +555,10 @@ namespace Jp.UI.SSO.Controllers.Account
 
             // lookup our user and external provider info
             var (user, provider, providerUserId, claims) = await FindUserFromExternalProviderAsync(result);
+
             if (user == null)
             {
+                return RedirectToAction("LoginError", "Home", new { Error = "No user found to be Login, Please register an account using any one of providers"});
                 // this might be where you might initiate a custom workflow for user registration
                 // in this sample we don't show how that would be done, as our sample implementation
                 // simply auto-provisions new external user

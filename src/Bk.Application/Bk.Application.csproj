@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Backend\Jp.Database\Jp.Database.csproj" />
+    <ProjectReference Include="..\Bk.Auth.Events\Bk.Auth.Events.csproj" />
   </ItemGroup>
 
 </Project>

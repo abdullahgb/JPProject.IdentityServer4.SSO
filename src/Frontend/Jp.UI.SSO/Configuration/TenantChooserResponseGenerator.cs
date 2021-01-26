@@ -21,7 +21,7 @@ namespace Jp.UI.SSO.Configuration
             var response = await base.ProcessInteractionAsync(request, consent);
             if (response.IsConsent || response.IsLogin || response.IsError)
                 return response;
-            if (request.Subject.HasClaim(c => c.Type == CustomClaimTypes.ProfileIncomplete))
+            if (request.Subject.HasClaim(c => c.Type == CustomClaimTypes.TenantProfileInComplete))
                 return new InteractionResponse
                 {
                     RedirectUrl = "/Tenants/Onboarding"

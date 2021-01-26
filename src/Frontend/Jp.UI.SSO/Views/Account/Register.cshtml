@@ -19,19 +19,47 @@
     <div class="company_Logo p-12-44">
         <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
     </div>
+    @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "microsoft"))
+    {
+        <div class="microsoft-login">
+            <a style="text-decoration: none;" asp-action="ExternalSignup"
+               asp-route-provider="Microsoft"
+               asp-route-returnUrl="@Model.ReturnUrl">
+                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="300px" height="50px" viewBox="0 0 3278 522" class="SignInButton">
+                <style type="text/css">
+                    .fil0:hover {
+                        fill: #4B4B4B;
+                    }
 
-    <h1>Create an account </h1>
+                    .fnt0 {
+                        font-size: 260px;
+                        font-family: 'Segoe UI Semibold', 'Segoe UI';
+                        text-decoration: none;
+                    }
+</style>
+                <rect class="fil0" x="2" y="2" width="3174" height="517" fill="black"></rect>
+                <rect x="150" y="129" width="122" height="122" fill="#F35325"></rect>
+                <rect x="284" y="129" width="122" height="122" fill="#81BC06"></rect>
+                <rect x="150" y="263" width="122" height="122" fill="#05A6F0"></rect>
+                <rect x="284" y="263" width="122" height="122" fill="#FFBA08"></rect>
+                <text x="470" y="357" fill="white" class="fnt0">SignUp with Microsoft</text>
+                </svg>
+            </a>
+
+        </div>
+    }
+    @*<h1>Create an account </h1>*@
     @await Html.PartialAsync("_ValidationSummary")
-    <form method="post" asp-action="Register">
+    <form style="padding-top: 20px" method="post" asp-action="Register">
         <input asp-for="ReturnUrl" type="hidden" />
         <div class="d-flex align-items-center flex-column userInput">
             <input class="form-control" type="text" placeholder="Username" asp-for=Username autofocus tabindex="1" />
             <br />
-            <input class="form-control" type="text" placeholder="Email" asp-for=Email  tabindex="2" />
+            <input class="form-control" type="text" placeholder="Email" asp-for=Email tabindex="2" />
             <br />
-            <input class="form-control" type="password" placeholder="Password" asp-for=Password  tabindex="3" />
+            <input class="form-control" type="password" placeholder="Password" asp-for=Password tabindex="3" />
             <br />
-            <input class="form-control" type="password" placeholder="Confirm Password" asp-for=ConfirmPassword  tabindex="4" />
+            <input class="form-control" type="password" placeholder="Confirm Password" asp-for=ConfirmPassword tabindex="4" />
         </div>
         <div style="padding-top: 12px !important;" class="d-flex align-items-center p-0-44 pt-5 font-size-13">
             <label aria-label="terms and conditions"
@@ -56,10 +84,14 @@
             </button>
         </div>
     </form>
-    
+
 </div>
 <style>
     .p-0-44 {
         padding: 10px 40px !important;
+    }
+    .microsoft-login {
+        margin-left: 44px;
+        padding-top: 21px;
     }
 </style>

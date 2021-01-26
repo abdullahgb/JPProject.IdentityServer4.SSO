@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Jp.Database.Migrations
 {
-    public partial class Dbinit : Migration
+    public partial class DbInit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -290,11 +290,11 @@ namespace Jp.Database.Migrations
                     ProfileCompleted = table.Column<bool>(type: "bit", nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Gender = table.Column<int>(type: "int", nullable: false),
-                    State = table.Column<int>(type: "int", nullable: false),
+                    State = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     Pic = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MultitenantEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    MultitenantEnabled = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -718,7 +718,8 @@ namespace Jp.Database.Migrations
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TenantId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    TenantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    State = table.Column<int>(type: "int", nullable: false, defaultValue: 1)
                 },
                 constraints: table =>
                 {

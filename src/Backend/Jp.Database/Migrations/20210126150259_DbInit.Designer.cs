@@ -4,14 +4,16 @@ using Jp.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Jp.Database.Migrations
 {
     [DbContext(typeof(SsoContext))]
-    partial class SsoContextModelSnapshot : ModelSnapshot
+    [Migration("20210126150259_DbInit")]
+    partial class DbInit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -905,6 +907,9 @@ namespace Jp.Database.Migrations
                     b.Property<string>("Pic")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("ProfileCompleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -913,18 +918,12 @@ namespace Jp.Database.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(1);
 
-                    b.Property<bool>("TenantProfileCompleted")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("UserProfileCompleted")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

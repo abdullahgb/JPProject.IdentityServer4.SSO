@@ -28,11 +28,40 @@
             <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
         }
     </div>
-    <h1>Sign in </h1>
+    @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "microsoft"))
+    {
+        <div class="microsoft-login">
+            <a style="text-decoration: none;"  asp-action="ExternalLogin"
+               asp-route-provider="Microsoft"
+               asp-route-returnUrl="@Model.ReturnUrl">
+                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="300px" height="50px" viewBox="0 0 3278 522" class="SignInButton">
+                    <style type="text/css">
+                        .fil0:hover {
+                            fill: #4B4B4B;
+                        }
+
+                        .fnt0 {
+                            font-size: 260px;
+                            font-family: 'Segoe UI Semibold', 'Segoe UI';
+                            text-decoration: none;
+                        }
+                    </style>
+                    <rect class="fil0" x="2" y="2" width="3174" height="517" fill="black"></rect>
+                    <rect x="150" y="129" width="122" height="122" fill="#F35325"></rect>
+                    <rect x="284" y="129" width="122" height="122" fill="#81BC06"></rect>
+                    <rect x="150" y="263" width="122" height="122" fill="#05A6F0"></rect>
+                    <rect x="284" y="263" width="122" height="122" fill="#FFBA08"></rect>
+                    <text x="470" y="357" fill="white" class="fnt0">Sign in with Microsoft</text>
+                </svg>
+            </a>
+       
+        </div>
+    }
+    
     @await Html.PartialAsync("_ValidationSummary")
     @if (Model.EnableLocalLogin)
     {
-        <form method="post" asp-antiforgery="true" asp-action="Login" class="form">
+        <form style=" margin-top: 15px;" method="post" asp-antiforgery="true" asp-action="Login" class="form">
             <div class="d-flex align-items-center flex-column userInput">
                 <input type="text"
                        placeholder="User@example.com"
@@ -79,62 +108,62 @@
                    aria-label="can't access your account">Can’t access your account?</a>
             </div>
             @if (!Model.EnableLocalLogin && !Model.EnableExternalProviders)
+            {
+                <p>
+                    @Localizer["Body-Configured-login"].
+                </p>
+            }
+            @*<div>
+                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "facebook"))
+                    {
+                        <a class="btn btn-icon btn-circle btn-light-facebook mr-2"
+                           asp-action="ExternalLogin"
+                           asp-route-provider="Facebook"
+                           asp-route-returnUrl="@Model.ReturnUrl">
+                            <i class="socicon-facebook"></i>
+                            <span>@Localizer["Body-Facebook"]</span>
+                        </a>
+                    }
+                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "microsoft"))
                 {
-                    <p>
-                        @Localizer["Body-Configured-login"].
-                    </p>
+                    <a class="btn btn-icon btn-circle btn-light-facebook mr-2"
+                       asp-action="ExternalLogin"
+                       asp-route-provider="Microsoft"
+                       asp-route-returnUrl="@Model.ReturnUrl">
+                        <i class="socicon-microsoft"></i>
+                        <span>@Localizer["Body-Microsoft"]</span>
+                    </a>
                 }
-        <div>
-            @*@if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "facebook"))
-            {
-                <a class="btn btn-icon btn-circle btn-light-facebook mr-2"
-                   asp-action="ExternalLogin"
-                   asp-route-provider="Facebook"
-                   asp-route-returnUrl="@Model.ReturnUrl">
-                    <i class="socicon-facebook"></i>
-                    <span>@Localizer["Body-Facebook"]</span>
-                </a>
-            }*@
-            @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "microsoft"))
-            {
-                <a class="btn btn-icon btn-circle btn-light-facebook mr-2"
-                   asp-action="ExternalLogin"
-                   asp-route-provider="Microsoft"
-                   asp-route-returnUrl="@Model.ReturnUrl">
-                    <i class="socicon-microsoft"></i>
-                    <span>@Localizer["Body-Microsoft"]</span>
-                </a>
-            }
-            @*@if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "google"))
-            {
-                <a class="btn btn-icon btn-circle btn-light-google mr-2"
-                   asp-action="ExternalLogin"
-                   asp-route-provider="Google"
-                   asp-route-returnUrl="@Model.ReturnUrl">
-                    <i class="socicon-linkedin"></i>
-                    <span>@Localizer["Body-Google+"]</span>
-                </a>
-            }
-            @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "twitter"))
-            {
-                <a class="btn btn-icon btn-circle btn-light-twitter mr-2"
-                   asp-action="ExternalLogin"
-                   asp-route-provider="Twitter"
-                   asp-route-returnUrl="@Model.ReturnUrl">
-                    <i class="socicon-twitter"></i>
-                    <span>@Localizer["Body-Twitter"]</span>
-                </a>
-            }
-            @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "openidconnect"))
-            {
-                <a class="btn btn-primary active mt-3"
-                   asp-action="ExternalLogin"
-                   asp-route-provider="OpenIdConnect"
-                   asp-route-returnUrl="@Model.ReturnUrl">
-                    <span>External Single Sign On - SSO</span>
-                </a>
-            }*@
-        </div>
+                @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "google"))
+                    {
+                        <a class="btn btn-icon btn-circle btn-light-google mr-2"
+                           asp-action="ExternalLogin"
+                           asp-route-provider="Google"
+                           asp-route-returnUrl="@Model.ReturnUrl">
+                            <i class="socicon-linkedin"></i>
+                            <span>@Localizer["Body-Google+"]</span>
+                        </a>
+                    }
+                    @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "twitter"))
+                    {
+                        <a class="btn btn-icon btn-circle btn-light-twitter mr-2"
+                           asp-action="ExternalLogin"
+                           asp-route-provider="Twitter"
+                           asp-route-returnUrl="@Model.ReturnUrl">
+                            <i class="socicon-twitter"></i>
+                            <span>@Localizer["Body-Twitter"]</span>
+                        </a>
+                    }
+                    @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "openidconnect"))
+                    {
+                        <a class="btn btn-primary active mt-3"
+                           asp-action="ExternalLogin"
+                           asp-route-provider="OpenIdConnect"
+                           asp-route-returnUrl="@Model.ReturnUrl">
+                            <span>External Single Sign On - SSO</span>
+                        </a>
+                    }
+            </div>*@
             <div class="d-flex align-items-center justify-content-end p-0-44 font-size-13 mt-35">
                 <button type="submit"
                         name="button" value="login"
@@ -147,3 +176,9 @@
         </form>
     }
 </div>
+<style>
+    .microsoft-login {
+        margin-left: 44px;
+        padding-top: 21px;
+    }
+</style>
