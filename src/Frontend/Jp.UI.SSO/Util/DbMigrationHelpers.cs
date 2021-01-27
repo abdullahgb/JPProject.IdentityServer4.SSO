@@ -201,7 +201,8 @@ namespace Jp.UI.SSO.Util
                 Email = Users.GetEmail(configuration),
                 EmailConfirmed = true,
                 LockoutEnd = null,
-                UserProfileCompleted = true
+                UserProfileCompleted = true,
+                TenantProfileCompleted = true
             };
 
             var result = await userManager.CreateAsync(user, Users.GetPassword(configuration));
@@ -209,7 +210,7 @@ namespace Jp.UI.SSO.Util
             if (result.Succeeded)
             {
                 // Create Admin Tenant
-                var tenant = new Tenant("oauth", "OAuth Tenant","pK","rs",TenantTypes.GENERIC,Industries.SoleProprietorShip);
+                var tenant = new Tenant("oauth", "OAuth Tenant","pK","rs");
                 await tenantMgr.CreateAsync(tenant);
 
                 // Create Admin Claims

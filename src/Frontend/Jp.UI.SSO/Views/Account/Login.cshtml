@@ -28,35 +28,32 @@
             <img src="assets/media/logos/logo-letter-13.png" style="max-height: 50px !important;" alt="" />
         }
     </div>
-    @if (Model.VisibleExternalProviders.Any(a => a.DisplayName.ToLower() == "microsoft"))
-    {
-        <div class="microsoft-login">
-            <a style="text-decoration: none;"  asp-action="ExternalLogin"
-               asp-route-provider="Microsoft"
-               asp-route-returnUrl="@Model.ReturnUrl">
-                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="300px" height="50px" viewBox="0 0 3278 522" class="SignInButton">
-                    <style type="text/css">
-                        .fil0:hover {
-                            fill: #4B4B4B;
-                        }
+    <div class="microsoft-login">
+        <a style="text-decoration: none;"  asp-action="ExternalLogin"
+           asp-route-provider="Microsoft"
+           asp-route-returnUrl="@Model.ReturnUrl">
+            <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="300px" height="50px" viewBox="0 0 3278 522" class="SignInButton">
+                <style type="text/css">
+                    .fil0:hover {
+                        fill: #4B4B4B;
+                    }
 
-                        .fnt0 {
-                            font-size: 260px;
-                            font-family: 'Segoe UI Semibold', 'Segoe UI';
-                            text-decoration: none;
-                        }
-                    </style>
-                    <rect class="fil0" x="2" y="2" width="3174" height="517" fill="black"></rect>
-                    <rect x="150" y="129" width="122" height="122" fill="#F35325"></rect>
-                    <rect x="284" y="129" width="122" height="122" fill="#81BC06"></rect>
-                    <rect x="150" y="263" width="122" height="122" fill="#05A6F0"></rect>
-                    <rect x="284" y="263" width="122" height="122" fill="#FFBA08"></rect>
-                    <text x="470" y="357" fill="white" class="fnt0">Sign in with Microsoft</text>
-                </svg>
-            </a>
+                    .fnt0 {
+                        font-size: 260px;
+                        font-family: 'Segoe UI Semibold', 'Segoe UI';
+                        text-decoration: none;
+                    }
+                </style>
+                <rect class="fil0" x="2" y="2" width="3174" height="517" fill="black"></rect>
+                <rect x="150" y="129" width="122" height="122" fill="#F35325"></rect>
+                <rect x="284" y="129" width="122" height="122" fill="#81BC06"></rect>
+                <rect x="150" y="263" width="122" height="122" fill="#05A6F0"></rect>
+                <rect x="284" y="263" width="122" height="122" fill="#FFBA08"></rect>
+                <text x="470" y="357" fill="white" class="fnt0">Sign in with Microsoft</text>
+            </svg>
+        </a>
        
-        </div>
-    }
+    </div>
     
     @await Html.PartialAsync("_ValidationSummary")
     @if (Model.EnableLocalLogin)

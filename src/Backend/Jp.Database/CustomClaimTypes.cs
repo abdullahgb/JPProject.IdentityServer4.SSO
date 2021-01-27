@@ -4,7 +4,7 @@
     {
         public static string ProfileIncomplete = "UserProfileInComplete";
         public static string TenantProfileInComplete = "TenantProfileInComplete";
-        public static string TenantId = "tid";
+        public static string ProviderTenantId = "providerTenantId";
         public static string TenantName = "tname";
     }
 }

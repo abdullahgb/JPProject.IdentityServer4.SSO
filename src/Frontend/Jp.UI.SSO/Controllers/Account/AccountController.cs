@@ -31,10 +31,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Bk.Common.Claims;
+using Bk.Common.StringUtils;
 using Jp.Api.Management.Interfaces;
 using Jp.Database;
 using Jp.Database.Identity;
+using ServiceStack;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
+using StringExtensions = JPProject.Domain.Core.Util.StringExtensions;
 
 namespace Jp.UI.SSO.Controllers.Account
 {
@@ -225,7 +229,7 @@ namespace Jp.UI.SSO.Controllers.Account
                 return View(vm);
             }
             await HttpContext.SignInAsync(user.Id,new Claim(CustomClaimTypes.ProfileIncomplete, "1"));
-            return vm.ReturnUrl.IsNullOrEmpty() ?
+            return StringExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);
         }
@@ -925,6 +929,12 @@ namespace Jp.UI.SSO.Controllers.Account
             if (email != null)
             {
                 filtered.Add(new Claim(JwtClaimTypes.Email, email));
+            }
+            // tenantId
+            var tenantId = claims.FirstOrDefault(x => x.Type == OpenIdClaims.TenantId)?.Value;
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                filtered.Add(new Claim(CustomClaimTypes.ProviderTenantId, tenantId));
             }
 
             //picture

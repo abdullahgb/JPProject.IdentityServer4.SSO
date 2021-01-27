@@ -15,7 +15,7 @@ namespace Bk.Application.GraphQL
     {
         public static string Path { get; private set; }
         // ReSharper disable once InconsistentNaming
-        public static IServiceCollection RegiserGraphQL(this IServiceCollection services, Type[] types, string path = "/graphql")
+        public static IServiceCollection RegisterGraphQL(this IServiceCollection services, Type[] types, string path = "/graphql")
         {
             Path = path;
             var graphqlServer = services

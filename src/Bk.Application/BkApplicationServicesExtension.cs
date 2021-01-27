@@ -21,14 +21,14 @@ namespace Bk.Application
         {
             var section = configuration.GetSection("AppSettings");
             services.Configure<BlobSettings>(section.GetSection("Blob"));
-            services.Configure<AzureApp>(section.GetSection("ExternalLogin:Microsoft"));
+            services.Configure<AzureApp>(configuration.GetSection("ExternalLogin:Microsoft"));
             services.AddScoped<IActiveDirectoryService, ActiveDirectoryService>();
             services.AddScoped<IBlobStorageManager, BlobStorageManager>();
 
             var types = typeof(Query).Assembly.GetTypes();
 
             services.RegisterEventBus(configuration);
-            services.RegiserGraphQL(types);
+            services.RegisterGraphQL(types);
             services.RegisterRepositories(types);
             services.RegisterCommands(types);
             

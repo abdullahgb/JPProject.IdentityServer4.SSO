@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Bk.Common.Claims;
 using Bk.Common.ObjectUtils;
 using Jp.Database.Identity;
 using JPProject.Domain.Core.Util;

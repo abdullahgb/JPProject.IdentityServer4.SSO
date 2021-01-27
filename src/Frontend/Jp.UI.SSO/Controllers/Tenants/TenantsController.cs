@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Bk.Auth.Events;
 using Bk.Auth.Events.Business;
+using Bk.Common.Claims;
 using Bk.Common.EventBus;
 using Bk.Common.Roles;
 using IdentityModel;
@@ -78,7 +79,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
         {
             var claims = new List<Claim>(HttpContext.User.Claims)
             {
-                new Claim("tid", id.ToString()), new Claim("tname", name)
+                new Claim(OpenIdClaims.TenantId, id.ToString()), new Claim("tname", name)
             };
             await HttpContext.SignInAsync(User.Claims.Single(r => r.Type == "sub").Value, claims.ToArray());
             return Redirect(returnUrl);
@@ -110,12 +111,14 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 ModelState.AddModelError("Conflict","Business name already exist");
                 return View();
             }
-            //await using var transaction = await _context.Database.BeginTransactionAsync();
-            // Create new tenant
-            var newTenant = new Tenant(vm.Name,vm.Name,vm.Country,vm.Currency,TenantTypes.GENERIC,Industries.SoleProprietorShip);
-            await _tenantManager.CreateAsync(newTenant);
-
             var ownerId = User.GetSubjectId();
+            var providerClaim = await _context.UserClaims
+                .Where(x => x.UserId == ownerId && x.ClaimType == CustomClaimTypes.ProviderTenantId)
+                .Select(x=> x.ClaimValue)
+                .FirstOrDefaultAsync();
+            // Create new tenant
+            var newTenant = new Tenant(vm.Name,vm.Name,vm.Country,vm.Currency, providerClaim);
+            await _tenantManager.CreateAsync(newTenant);
 
             // Add Owner role to user
             var user =  await _userManager.FindByIdAsync(ownerId);
@@ -127,11 +130,13 @@ namespace Jp.UI.SSO.Controllers.Tenants
                 ApplicationRoles.TimeTracking.Admin,
                 ApplicationRoles.TrackingAgent.Admin
             };
+           
             await _userManager.AddToRolesAsync(user, newTenant, roles);
-            user.CompleteUserProfile();
+            //user.CompleteUserProfile();
             user.CompleteTenantProfile();
             await _userManager.UpdateAsync(user);
-            //await transaction.CommitAsync();    
+            //await transaction.CommitAsync();
+            
             var @event = new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName, user.Email);
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);
@@ -139,10 +144,10 @@ namespace Jp.UI.SSO.Controllers.Tenants
             var newClaims = new List<Claim>(roles.Select(role =>
                 new Claim(JwtClaimTypes.Role, role)))
             {
-                new Claim("tid", newTenant.Id),
+                new Claim(OpenIdClaims.TenantId, newTenant.Id),
                 new Claim("tname", newTenant.CanonicalName)
             };
-            var claims = User.Claims.Where(x => x.Type != CustomClaimTypes.ProfileIncomplete).Concat(newClaims).ToArray();
+            var claims = User.Claims.Where(x => x.Type != CustomClaimTypes.TenantProfileInComplete).Concat(newClaims).ToArray();
             await HttpContext.SignInAsync(ownerId, claims);
             return IEnumerableExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
                 Redirect("~/Grants") :

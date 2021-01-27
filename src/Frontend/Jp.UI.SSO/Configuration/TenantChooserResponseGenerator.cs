@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Bk.Common.Claims;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
@@ -26,7 +27,7 @@ namespace Jp.UI.SSO.Configuration
                 {
                     RedirectUrl = "/Tenants/Onboarding"
                 };
-            if (!request.Subject.HasClaim(c => c.Type == "tid" && c.Value != "0"))
+            if (!request.Subject.HasClaim(c => c.Type == OpenIdClaims.TenantId && c.Value != "0"))
                 return new InteractionResponse
                 {
                     RedirectUrl = "/Tenants"

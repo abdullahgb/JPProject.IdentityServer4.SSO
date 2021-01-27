@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Bk.Common.Claims;
 using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
@@ -105,21 +106,21 @@ namespace Jp.UI.SSO.Util
         }
 
         public static string GetTenantId(this ClaimsPrincipal claimsPrincipal)
-            => claimsPrincipal.Claims.Where(x => x.Type == "tid").Select(x => x.Value).FirstOrDefault();
+            => claimsPrincipal.Claims.Where(x => x.Type == OpenIdClaims.TenantId).Select(x => x.Value).FirstOrDefault();
         public static string GetTenantName(this ClaimsPrincipal claimsPrincipal)
             => claimsPrincipal.Claims.Where(x => x.Type == "tname").Select(x => x.Value).FirstOrDefault();
         public static Tenant GetTenant(this ClaimsPrincipal claimsPrincipal)
         {
             Tenant tenant = null;
-            if (claimsPrincipal.Claims.Any(x => x.Type == "tid"))
+            if (claimsPrincipal.Claims.Any(x => x.Type == OpenIdClaims.TenantId))
             {
                 var claims = claimsPrincipal.Claims;
-                 tenant = new Tenant(new Guid(claims.First(x => x.Type == "tid").Value), claims.First(x => x.Type == "tname").Value);
+                 tenant = new Tenant(new Guid(claims.First(x => x.Type == OpenIdClaims.TenantId).Value), claims.First(x => x.Type == "tname").Value);
             }
 
             return tenant;
         }
         public static bool ContainsTenant(this ClaimsPrincipal claimsPrincipal)
-            => claimsPrincipal.Claims.Any(x=> x.Type=="tid");
+            => claimsPrincipal.Claims.Any(x=> x.Type==OpenIdClaims.TenantId);
     }
 }

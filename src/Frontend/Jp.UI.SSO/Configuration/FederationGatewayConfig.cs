@@ -1,13 +1,10 @@
-﻿using System.Linq;
-using IdentityModel;
+﻿using IdentityModel;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 
 namespace Jp.UI.SSO.Configuration
 {
@@ -60,12 +57,6 @@ namespace Jp.UI.SSO.Configuration
             }
             if (configuration.GetSection("ExternalLogin:Microsoft").Exists())
             {
-                authBuilder.AddMicrosoftAccount("Microsoft", options =>
-                {
-                    options.ClientId = configuration.GetValue<string>("ExternalLogin:Microsoft:ClientId");
-                    options.ClientSecret = configuration.GetValue<string>("ExternalLogin:Microsoft:ClientSecret");
-                    options.SaveTokens = true;  
-                });
             }
 
             if (configuration.GetSection("ExternalLogin:OpenIdConnect").Exists())
