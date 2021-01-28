@@ -114,6 +114,7 @@ namespace Jp.Database.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.EnableSensitiveDataLogging();
             base.OnConfiguring(optionsBuilder);
         }
 
@@ -134,47 +135,43 @@ namespace Jp.Database.Context
             userEntity.ToTable(TableConsts.IdentityUsers);
             userEntity.Property(x => x.State).HasDefaultValue(States.Active);
             userEntity.Property(x => x.MultitenantEnabled).HasDefaultValue(true);
-
-
-            builder.Entity<UserRoleIdentity>()
-                .ToTable(TableConsts.IdentityUserRoles)
-                .Property(x=> x.State)
-                .HasDefaultValue(States.Active);
-
             builder.Entity<IdentityUserLogin<string>>().ToTable(TableConsts.IdentityUserLogins);
             builder.Entity<IdentityUserClaim<string>>().ToTable(TableConsts.IdentityUserClaims);
             builder.Entity<IdentityUserToken<string>>().ToTable(TableConsts.IdentityUserTokens);
-            builder.Entity<UserRoleIdentity>()
-                .HasOne(c => c.User)
-                .WithMany(e => e.UserRoles)
-                .HasForeignKey(e => e.UserId)
-                .IsRequired();
-            builder.Entity<UserRoleIdentity>()
-                .HasOne(c => c.Role)
-                .WithMany(e => e.UserRoles)
-                .HasForeignKey(e => e.RoleId)
-                .IsRequired();
-            builder.Entity<UserRoleIdentity>()
-                .HasOne(c => c.Tenant)
-                .WithMany(e => e.UserRoles)
-                .HasForeignKey(e => e.TenantId)
-                .IsRequired();
-
             builder.Entity<UserRoleIdentity>(b =>
             {
+                b.ToTable(TableConsts.IdentityUserRoles);
+                b.Property(x => x.State).HasDefaultValue(States.Active);
+
+                b
+                    .HasOne(c => c.User)
+                    .WithMany(e => e.UserRoles)
+                    .HasForeignKey(e => e.UserId)
+                    .IsRequired();
+                b
+                    .HasOne(c => c.Role)
+                    .WithMany(e => e.UserRoles)
+                    .HasForeignKey(e => e.RoleId)
+                    .IsRequired();
+                b
+                    .HasOne(c => c.Tenant)
+                    .WithMany(e => e.UserRoles)
+                    .HasForeignKey(e => e.TenantId)
+                    .IsRequired();
                 b.Ignore("Id");
+
                 // Add multi-tenancy support to entity.
                 //b.HasTenancy(() => _tenancyContext.Tenant.Id, _tenancyModelState, hasIndex: false);
                 // Primary key
-                b.HasKey(r => new { r.UserId, r.RoleId, r.TenantId });
+                b.HasKey(r => new {r.UserId, r.RoleId, r.TenantId});
 
                 //Remove unique index on NormalizedName.
                 b.HasIndex(r => r.UserId).IsUnique(false);
                 b.HasIndex(r => r.RoleId).IsUnique(false);
                 b.HasIndex(r => r.TenantId).IsUnique(false);
                 // Add unique index on TenantId and NormalizedName.
-                b.HasIndex("TenantId", "RoleId", "UserId")
-                    .HasName("TenantUserRoleIndex").IsUnique();
+                b.HasIndex(r => new { r.UserId, r.RoleId, r.TenantId })
+                    .HasDatabaseName("TenantUserRoleIndex").IsUnique();
             });
         }
         public static void ConfigureTenant(this ModelBuilder builder,out TenancyModelState<string> tenancyModelState)
@@ -185,7 +182,7 @@ namespace Jp.Database.Context
 
             // Add multi-tenancy support to model.
             var tenantReferenceOptions = new TenantReferenceOptions();
-            builder.HasTenancy<string>(tenantReferenceOptions, out tenancyModelState);
+            builder.HasTenancy(tenantReferenceOptions, out tenancyModelState);
         }
     }
 }

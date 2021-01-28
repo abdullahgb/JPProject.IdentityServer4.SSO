@@ -31,7 +31,7 @@
     <div class="microsoft-login">
         <a style="text-decoration: none;"  asp-action="ExternalLogin"
            asp-route-provider="Microsoft"
-           asp-route-returnUrl="@Model.ReturnUrl">
+           asp-route-returnUrl="@Model.ReturnUrl" onclick="showLoading()">
             <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="300px" height="50px" viewBox="0 0 3278 522" class="SignInButton">
                 <style type="text/css">
                     .fil0:hover {

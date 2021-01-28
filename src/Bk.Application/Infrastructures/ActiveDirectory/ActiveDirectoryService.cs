@@ -33,10 +33,9 @@ namespace Bk.Application.Infrastructures.ActiveDirectory
             }
             var dbUsersEmailHash = new HashSet<string>(oldUserEmails).ToList();
             return reqUsers
-                .Where(reqUser => !dbUsersEmailHash.Contains(reqUser.OnPremisesUserPrincipalName))
+                .Where(reqUser => !dbUsersEmailHash.Contains(reqUser.UserPrincipalName))
                 .Where(reqUser=> !reqUser.UserPrincipalName.IsNullOrEmpty())
-                .Select(src=> new UserIdentity(src.GivenName ?? "",
-                src.Surname?? "", src.UserPrincipalName,Gender.Male))
+                .Select(src => new UserIdentity(src.DisplayName, src.UserPrincipalName, Gender.Male))
                 .ToList();
             
 

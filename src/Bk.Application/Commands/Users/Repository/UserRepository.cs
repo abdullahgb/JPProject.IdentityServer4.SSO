@@ -39,7 +39,13 @@ namespace Bk.Application.Commands.Users.Repository
             => await _users.FirstOrDefaultAsync(x => x.Id == id.ToString());
 
         public Task<bool> IsEmailDuplicate(string email)
-            => _commandContext.Users.AnyAsync(x => x.Email.Trim().ToLower().Equals(email.Trim().ToLower()));
+            => _commandContext.Users.AnyAsync(x => x.Email.Trim().ToLower() == (email.Trim().ToLower()));
+
+        public void InsertBulk(List<UserIdentity> users)
+            => _commandContext.Users.AddRange(users);
+
+        public Task<List<UserIdentity>> GetByEmail(List<string> emails)
+            => _commandContext.Users.Where(x => emails.Contains(x.Email)).ToListAsync();
 
         public Task<bool> IsEmailDuplicateExceptUser(Guid userId, string email)
             => _commandContext.Users.AnyAsync(x => x.Id != userId.ToString() && x.Email.Trim().ToLower().Equals(email.Trim().ToLower()));

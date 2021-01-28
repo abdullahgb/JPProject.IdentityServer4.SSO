@@ -13,6 +13,8 @@ namespace Bk.Application.Commands.Users.Repository
         Task<bool> HasRole(Guid businessId, Guid id, List<string> appRoles);
         void Add(UserIdentity admin);
         Task<bool> IsEmailDuplicate(string email);
+        void InsertBulk(List<UserIdentity> users);
         Task<bool> IsEmailDuplicateExceptUser(Guid userId, string email);
+        Task<List<UserIdentity>> GetByEmail(List<string> emails);
     }
 }

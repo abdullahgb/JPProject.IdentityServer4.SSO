@@ -25,8 +25,9 @@ namespace Bk.Application.Commands.Businesses.Repository
         public Task<List<string>> GetUserEmails(string businessId)
             => (from tenant in _tenants
                 join userRole in _commandContext.UserRoles on tenant.Id equals userRole.TenantId
+                join role in _commandContext.Roles on userRole.RoleId equals role.Id
                 join user in _commandContext.Users on userRole.UserId equals user.Id
-                where tenant.Id == businessId
+                where tenant.Id == businessId && role.Name!= ApplicationRoles.Owner
                 select user.Email).Distinct().ToListAsync();
 
         public Task<Tenant> GetOwnedById(string businessId)

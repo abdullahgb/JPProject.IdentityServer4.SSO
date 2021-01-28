@@ -17,6 +17,10 @@
     <Compile Remove="Migrations\20210119121127_MultiTenant.Designer.cs" />
     <Compile Remove="Migrations\20210119123648_MultiTenant.cs" />
     <Compile Remove="Migrations\20210119123648_MultiTenant.Designer.cs" />
+    <Compile Remove="Migrations\20210128124815_JoinTenantUser.cs" />
+    <Compile Remove="Migrations\20210128124815_JoinTenantUser.Designer.cs" />
+    <Compile Remove="Migrations\20210128125025_JoinTenantUser.cs" />
+    <Compile Remove="Migrations\20210128125025_JoinTenantUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

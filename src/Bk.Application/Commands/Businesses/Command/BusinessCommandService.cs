@@ -34,6 +34,7 @@ namespace Bk.Application.Commands.Businesses.Command
         }
         public async Task<string> CreateBusiness(CreateBusinessVm vm)
         {
+            throw new NotImplementedException();
             // Check If Businesses Exists in BusinessRepository
             var admin = await _userRepository.GetById(vm.OwnerId) ?? throw UserCommandService.UserNotFound(vm.OwnerId);
 
@@ -41,7 +42,7 @@ namespace Bk.Application.Commands.Businesses.Command
             // Create in AggregateRoot
             var business = new Tenant(admin,  vm.Name, vm.Country, vm.Currency, vm.TenantTypeId, vm.IndustryId);
 
-            admin.CreateBusiness(business);
+            //admin.CreateBusiness(business);
 
             // Save Changes in BusinessRepository
             await _userRepository.SaveChanges();

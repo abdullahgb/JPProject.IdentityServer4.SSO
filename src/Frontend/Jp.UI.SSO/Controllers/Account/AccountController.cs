@@ -233,7 +233,28 @@ namespace Jp.UI.SSO.Controllers.Account
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);
         }
+        [HttpGet("/confirm-email")]
+        public async Task<ActionResult> ConfirmEmail(string userid, string code)
+        {
+            return View(new ConfirEmailInputModel { Email = userid, Code = code });
+        }
+        public async Task<ActionResult> ConfirmEmailAction(ConfirEmailInputModel model)
+        {
+            var result = await _userAppService.ResetPassword(new ResetPasswordViewModel
+            {
+                ConfirmPassword = model.Password,
+                Code = model.Code,
+                Email = model.Email,
+                Password = model.Password
+            });
+            if (!result)
+            {
+                ModelState.AddModelError("Error", string.Join(" ", _notifications.GetNotifications().Select(a => $"{a.Value}")));
+                return View("~/Views/Account/ConfirmEmail.cshtml", new ConfirEmailInputModel { Email = model.Email, Code = model.Code });
+            }
 
+            return Redirect("~/");
+        }
         private async Task<IActionResult> LoginByLdap(LoginInputModel model, AuthorizationRequest context)
         {
             var privateSettings = await _globalConfigurationAppService.GetPrivateSettings();

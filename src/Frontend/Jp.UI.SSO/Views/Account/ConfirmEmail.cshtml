@@ -1,0 +1,47 @@
+﻿@model Jp.UI.SSO.Models.ConfirEmailInputModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    Layout = "~/Views/Shared/_LayoutExt3.cshtml";
+}
+<div class="vertical-centered">
+    <div class="align-items-center p-12-44">
+
+        <h1 class="userInput">Account Confirmation</h1>
+        @await Html.PartialAsync("_ValidationSummary")
+        <form style="margin-top: 15px;" method="post" asp-controller="Account" asp-antiforgery="true" asp-action="ConfirmEmailAction" class="form">
+            <div class="d-flex align-items-center flex-column userInput">
+                <input type="password"
+                       id="password"
+                       placeholder="Password"
+                       asp-for=Password
+                       tabindex="2"
+                       class="form-control">
+                <br />
+                <input type="password"
+                       id="confirmPassword"
+                       placeholder="Confirm Password"
+                       asp-for=ConfirmPassword
+                       tabindex="2"
+                       class="form-control">
+            </div>
+            <input asp-for="Email" type="hidden" />
+            <input asp-for="Code" type="hidden" />
+            <div class="d-flex align-items-center justify-content-end p-0-44 font-size-13 mt-35">
+                <button type="submit"
+                        name="button" value="login"
+                        class="in-btn signIn-btn"
+                        onclick="showLoading()"
+                        aria-label="Sign-in options">
+                    Save
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+<style>
+    ul {
+        margin-left: -41px !important;
+    }
+</style>

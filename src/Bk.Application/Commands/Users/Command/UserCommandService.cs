@@ -101,16 +101,31 @@ namespace Bk.Application.Commands.Users.Command
         {
             var business = await _businessRepository.GetById(vm.BusinessId.ToString()) ??
                            throw BusinessCommandService.BusinessNotFound(vm.BusinessId);
-
             if (business.MicrosoftTenantId.IsNullOrEmpty())
                 throw new UnprocessableException("No Microsoft Tenant ID associated with the Business");
 
             var oldUserEmails = await _businessRepository.GetUserEmails(business.Id);
             var newUsers = await _activeDirectoryService.GetNewUsers(business.MicrosoftTenantId, oldUserEmails);
-            var noneRole = await _roleRepository.GetRole(ApplicationRoles.None);
-            business.AddUserRoles(newUsers,noneRole);
-            await _businessRepository.SaveChanges();
-            await _eventBus.Publish(newUsers.Select(x => new UserCreated(vm.BusinessId.ToString(),x.Id,x.UserName,x.Email,new List<string>{ ApplicationRoles.None })));
+            if (newUsers.Any())
+            {
+                // check for users if they already registered tenant before company synchronize active directory
+                var alreadyRegisteredUsers =
+                    await _userRepository.GetByEmail(newUsers.Select(x => x.Email).ToList());
+                if (alreadyRegisteredUsers.Any())
+                {
+                    // remove all those users that already exists in db
+                    newUsers = newUsers.Where(user => !alreadyRegisteredUsers.Select(alreadyRegisteredUser => alreadyRegisteredUser.Email).Contains(user.Email)).ToList();
+                    // update users list to include already registered users from different tenant
+                    newUsers = newUsers.Concat(alreadyRegisteredUsers).ToList();
+                }
+                _userRepository.InsertBulk(newUsers);
+                await _userRepository.SaveChanges();
+                var noneRole = await _roleRepository.GetRole(ApplicationRoles.None);
+                business.AddUsersWithRole(newUsers, noneRole);
+                await _businessRepository.SaveChanges();
+                await _eventBus.Publish(newUsers.Select(x => new UserCreated(vm.BusinessId.ToString(), x.Id, x.UserName, x.Email, new List<string> { ApplicationRoles.None })));
+            }
+           
         }
 
         public async Task Restore(Guid adminId)

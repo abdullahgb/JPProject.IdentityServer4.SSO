@@ -22,6 +22,7 @@ using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MultiTenancyServer;
 
 namespace Jp.UI.SSO.Controllers.Tenants
@@ -60,7 +61,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
             var sub = User.GetSubjectId();
             var tenants = await (from tenant in _context.Tenants
                 join userRole in _context.UserRoles on tenant.Id equals userRole.TenantId
-                where userRole.UserId == sub
+                where userRole.UserId == sub && tenant.UserRoles.All(x=> x.State == States.Active)
                 select tenant).Distinct().ToListAsync();
             var count = tenants.Count;
             if (count < 1) return NotFound("No Tenant Found");
