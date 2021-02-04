@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Bk.Common.StringUtils;
-using JPProject.Sso.AspNetIdentity.Models.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using UserIdentity = JPProject.Sso.AspNetIdentity.Models.Identity.UserIdentity;
@@ -32,13 +31,12 @@ namespace Bk.Application.Infrastructures.ActiveDirectory
                 reqUsers.AddRange(req);
             }
             var dbUsersEmailHash = new HashSet<string>(oldUserEmails).ToList();
-            return reqUsers
+            var newUsers = reqUsers
+                .Where(reqUser => !reqUser.UserPrincipalName.IsNullOrEmpty())
                 .Where(reqUser => !dbUsersEmailHash.Contains(reqUser.UserPrincipalName))
-                .Where(reqUser=> !reqUser.UserPrincipalName.IsNullOrEmpty())
-                .Select(src => new UserIdentity(src.DisplayName, src.UserPrincipalName, Gender.Male))
+                .Select(src => new UserIdentity(src.DisplayName, src.UserPrincipalName))
                 .ToList();
-            
-
+            return newUsers;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Bk.Application.GraphQL.QueryTypes
+﻿namespace Bk.Application.GraphQL.QueryTypes.Types
 {
     public class IndustryQueryType
     {

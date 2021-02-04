@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Bk.Application.GraphQL;
+using Bk.Application.GraphQL.QueryTypes;
 using Bk.Application.Infrastructures.ActiveDirectory;
 using Bk.Application.Infrastructures.BlobStorage;
 using Bk.Common.ArrayUtils;

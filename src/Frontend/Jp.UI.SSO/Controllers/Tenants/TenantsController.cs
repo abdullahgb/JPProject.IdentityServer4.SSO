@@ -61,10 +61,9 @@ namespace Jp.UI.SSO.Controllers.Tenants
             var sub = User.GetSubjectId();
             var tenants = await (from tenant in _context.Tenants
                 join userRole in _context.UserRoles on tenant.Id equals userRole.TenantId
-                where userRole.UserId == sub && tenant.UserRoles.All(x=> x.State == States.Active)
+                where userRole.UserId == sub && tenant.UserRoles.Any(x=> x.State == States.Active)
                 select tenant).Distinct().ToListAsync();
-            var count = tenants.Count;
-            if (count < 1) return NotFound("No Tenant Found");
+            if (tenants.Count < 1) return NotFound("No Tenant Found");
             //if (tenants.Count == 1)
             //{
             //    var tenant = tenants.FirstOrDefault();
@@ -138,7 +137,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
             await _userManager.UpdateAsync(user);
             //await transaction.CommitAsync();
             
-            var @event = new BusinessCreated(newTenant.Id, newTenant.CanonicalName, ownerId, user.UserName, user.Email);
+            var @event = new BusinessCreatedIntegration(newTenant.Id, newTenant.CanonicalName, ownerId);
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);
             // Sig-in with new tenant claims
@@ -150,7 +149,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
             };
             var claims = User.Claims.Where(x => x.Type != CustomClaimTypes.TenantProfileInComplete).Concat(newClaims).ToArray();
             await HttpContext.SignInAsync(ownerId, claims);
-            return IEnumerableExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
+            return vm.ReturnUrl.IsNullOrEmpty() ?
                 Redirect("~/Grants") :
                 Redirect(vm.ReturnUrl);
         }

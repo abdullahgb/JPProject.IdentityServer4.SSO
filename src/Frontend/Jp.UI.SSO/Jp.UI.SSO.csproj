@@ -49,8 +49,6 @@
   <ItemGroup>
     <Folder Include="Assets\templates\" />
     <Content Include="Assets\css\custom-style.css" />
-    <Folder Include="Graphql\" />
-    <Folder Include="Services\" />
     <ProjectReference Include="..\..\..\..\JPProject.Core\src\Core\JPProject.AspNet.Core\JPProject.AspNet.Core.csproj" />
     <ProjectReference Include="..\..\Backend\Jp.Api.Management\Jp.Api.Management.csproj" />
     <ProjectReference Include="..\..\Backend\Jp.Database\Jp.Database.csproj" />

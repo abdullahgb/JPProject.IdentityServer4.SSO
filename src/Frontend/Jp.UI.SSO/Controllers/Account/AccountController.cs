@@ -31,11 +31,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Bk.Auth.Events.User;
 using Bk.Common.Claims;
+using Bk.Common.EventBus;
 using Bk.Common.StringUtils;
 using Jp.Api.Management.Interfaces;
 using Jp.Database;
 using Jp.Database.Identity;
+using Microsoft.EntityFrameworkCore;
 using ServiceStack;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 using StringExtensions = JPProject.Domain.Core.Util.StringExtensions;
@@ -57,6 +60,7 @@ namespace Jp.UI.SSO.Controllers.Account
         private readonly ISystemUser _user;
         private readonly IReCaptchaService _reCaptchaService;
         private readonly IMediatorHandler _mediator;
+        private readonly IEventBus _eventBus;
         private readonly ILogger<AccountController> _logger;
         private readonly DomainNotificationHandler _notifications;
 
@@ -74,7 +78,7 @@ namespace Jp.UI.SSO.Controllers.Account
             IUserManageAppService userManageAppService,
             ISystemUser user,
             IReCaptchaService reCaptchaService,
-            IMediatorHandler mediator,
+            IMediatorHandler mediator, IEventBus eventBus,
             ILogger<AccountController> logger)
         {
             _signInManager = signInManager;
@@ -90,6 +94,7 @@ namespace Jp.UI.SSO.Controllers.Account
             _user = user;
             _reCaptchaService = reCaptchaService;
             _mediator = mediator;
+            _eventBus = eventBus;
             _logger = logger;
             _notifications = (DomainNotificationHandler)notifications;
         }
@@ -228,6 +233,7 @@ namespace Jp.UI.SSO.Controllers.Account
                 ModelState.AddModelError("Error", "Error occured while registering, Please try again later");
                 return View(vm);
             }
+            await _eventBus.Publish(new UserCreatedIntegration(user.Id, user.FirstName, user.LastName, user.Email));
             await HttpContext.SignInAsync(user.Id,new Claim(CustomClaimTypes.ProfileIncomplete, "1"));
             return StringExtensions.IsNullOrEmpty(vm.ReturnUrl) ?
                 Redirect("~/Grants") :
@@ -538,6 +544,8 @@ namespace Jp.UI.SSO.Controllers.Account
             // issue authentication cookie for user
 
             var s = await _userManager.FindByNameAsync(user.UserName);
+
+            await _eventBus.Publish(new UserCreatedIntegration(s.Id, s.FirstName, s.LastName, s.Email));
             var principal = await _signInManager.CreateUserPrincipalAsync(s);
             additionalLocalClaims.AddRange(principal.Claims);
             var name = principal.FindFirst(JwtClaimTypes.Name)?.Value ?? s.Id.ToString();
@@ -583,14 +591,9 @@ namespace Jp.UI.SSO.Controllers.Account
 
             if (user == null)
             {
-                return RedirectToAction("LoginError", "Home", new { Error = "No user found to be Login, Please register an account using any one of providers"});
-                // this might be where you might initiate a custom workflow for user registration
-                // in this sample we don't show how that would be done, as our sample implementation
-                // simply auto-provisions new external user
-                user = await AutoProvisionUserAsync(provider, providerUserId, claims);
+                user = await AutoProvisionUserLoginAsync(provider, providerUserId, claims);
                 if (user == null)
                     return RedirectToAction("LoginError", "Home", new { Error = string.Join(" ", _notifications.GetNotifications().Select(a => $"{a.Key}: {a.Value}")) });
-
             }
 
             // this allows us to collect any additonal claims or properties
@@ -910,7 +913,81 @@ namespace Jp.UI.SSO.Controllers.Account
 
             return (user, provider, providerUserId, claims);
         }
+        private async Task<UserViewModel> AutoProvisionUserLoginAsync(string provider, string providerUserId, List<Claim> claims)
+        {
+            // create a list of claims that we want to transfer into our store
+            var filtered = new List<Claim>();
 
+            // user's display name
+            var name = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)?.Value ?? claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+            var username = claims.FirstOrDefault(x => x.Type == "user_name" || x.Type == "username")?.Value ?? claims.FirstOrDefault(x => x.Type == ClaimTypes.Sid)?.Value;
+
+            if (name != null)
+            {
+                filtered.Add(new Claim(JwtClaimTypes.Name, name));
+            }
+            else
+            {
+                var first = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
+                    claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value;
+                var last = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
+                    claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value;
+                if (first != null && last != null)
+                {
+                    filtered.Add(new Claim(JwtClaimTypes.Name, first + " " + last));
+                }
+                else if (first != null)
+                {
+                    filtered.Add(new Claim(JwtClaimTypes.Name, first));
+                }
+                else if (last != null)
+                {
+                    filtered.Add(new Claim(JwtClaimTypes.Name, last));
+                }
+            }
+
+            // email
+            var email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            if (email != null)
+            {
+                filtered.Add(new Claim(JwtClaimTypes.Email, email));
+            }
+            // tenantId
+            var tenantId = claims.FirstOrDefault(x => x.Type == OpenIdClaims.TenantId)?.Value;
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                filtered.Add(new Claim(CustomClaimTypes.ProviderTenantId, tenantId));
+            }
+
+            //picture
+            var picture = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Picture)?.Value ?? claims.FirstOrDefault(x => x.Type == "image")?.Value;
+
+            var user = new SocialViewModel()
+            {
+                Username = username ?? email,
+                Name = name,
+                Email = email,
+                Picture = picture,
+                Provider = provider,
+                ProviderId = providerUserId
+            };
+
+            var userExist = await _userAppService.CheckUsername(user.Username) ||
+                            await _userAppService.CheckEmail(user.Email);
+
+            if (userExist)
+                await _userAppService.AddLogin(user);
+            else
+                return null;
+            var claimsFromUser = filtered.Select(f => new SaveUserClaimViewModel() { Type = f.Type, Username = user.Username, Value = f.Value });
+            foreach (var saveUserClaimViewModel in claimsFromUser)
+            {
+                await _userManageAppService.SaveClaim(saveUserClaimViewModel);
+            }
+
+            return await _userManageAppService.FindByProviderAsync(provider, providerUserId);
+        }
         private async Task<UserViewModel> AutoProvisionUserAsync(string provider, string providerUserId, List<Claim> claims)
         {
             // create a list of claims that we want to transfer into our store
@@ -978,7 +1055,6 @@ namespace Jp.UI.SSO.Controllers.Account
                 await _userAppService.AddLogin(user);
             else
                 await _userAppService.RegisterWithoutPassword(user);
-
             var claimsFromUser = filtered.Select(f => new SaveUserClaimViewModel() { Type = f.Type, Username = user.Username, Value = f.Value });
             foreach (var saveUserClaimViewModel in claimsFromUser)
             {

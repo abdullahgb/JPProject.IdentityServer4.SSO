@@ -2,27 +2,29 @@
 using Bk.Application.Common;
 using Bk.Common.GraphQL;
 using HotChocolate;
-using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Data;
 using HotChocolate.Types;
 using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
-namespace Bk.Application.GraphQL.QueryTypes
+namespace Bk.Application.GraphQL.QueryTypes.Types
 {
     
-    public class UserQueryType: IGraphQLType
+    public class UserQueryType
     {
 
-        [Authorize]
+        ///  [Authorize]
+        public string Version => "1.0";
+
         [UseProjection]
         [UseFiltering]
-        public IQueryable<Tenant> GetAssociatedBusinesses([GraphQLSession] OAuthSession session, [Service] SsoQueryContext context) => (from tenant in context.Tenants
-            join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
+        public IQueryable<UserIdentity> GetPaginated([GraphQLSession] OAuthSession session,
+            [Service] SsoQueryContext context) => (from user in context.Users
+            join userRole in context.UserRoles on user.Id equals userRole.UserId
             join role in context.Roles on userRole.RoleId equals role.Id
-            where userRole.UserId == session.SubjectId.ToString()
-            select tenant).Distinct();
+            where userRole.TenantId == session.TenantId.ToString()
+            select user);
 
     }
     public class UserQueryConfiguration
@@ -36,7 +38,6 @@ namespace Bk.Application.GraphQL.QueryTypes
             descriptor.Field(x => x.Email);
             descriptor.Field(x => x.DisplayName);
             descriptor.Field(x => x.Gender);
-            descriptor.Field(x => x.State);
             descriptor.Field(x => x.Pic);
             descriptor.Field(x => x.FirstName);
             descriptor.Field(x => x.LastName);

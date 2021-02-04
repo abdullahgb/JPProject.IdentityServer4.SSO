@@ -3,30 +3,29 @@ using Bk.Application.Common;
 using Bk.Common.GraphQL;
 using Bk.Common.Roles;
 using HotChocolate;
-using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Data;
 using HotChocolate.Types;
 using Jp.Database.Context;
 using JPProject.Sso.AspNetIdentity.Models;
 
-namespace Bk.Application.GraphQL.QueryTypes
+namespace Bk.Application.GraphQL.QueryTypes.Types
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class BusinessQueryType: IGraphQLType
+    public class BusinessQueryType
     {
-        [Authorize(Policy = "TenantOwner")]
+       // [Authorize(Policy = "TenantOwner")]
         [UseProjection]
         [UseFiltering]
+        [GraphQLIgnore]
         public IQueryable<Tenant> GetOwnedBusinesses([GraphQLSession] OAuthSession session, [Service] SsoQueryContext context) => (from tenant in context.Tenants
             join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
             join role in context.Roles on userRole.RoleId equals role.Id
             where userRole.UserId == session.SubjectId.ToString() && role.Name.Contains(ApplicationRoles.Owner)
             select tenant).Distinct();
 
-        [Authorize]
+        //[Authorize]
         [UseProjection]
         [UseFiltering]
-        [GraphQLIgnore]
         public IQueryable<Tenant> GetAssociatedBusinesses([GraphQLSession] OAuthSession session,[Service] SsoQueryContext context) => (from tenant in context.Tenants
             join userRole in context.UserRoles on tenant.Id equals userRole.TenantId
             join role in context.Roles on userRole.RoleId equals role.Id

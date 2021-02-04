@@ -21,6 +21,8 @@
     <Compile Remove="Migrations\20210128124815_JoinTenantUser.Designer.cs" />
     <Compile Remove="Migrations\20210128125025_JoinTenantUser.cs" />
     <Compile Remove="Migrations\20210128125025_JoinTenantUser.Designer.cs" />
+    <Compile Remove="Migrations\20210204141310_AddIsExternal2.cs" />
+    <Compile Remove="Migrations\20210204141310_AddIsExternal2.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,5 +51,6 @@
 
   <ItemGroup>
     <Folder Include="Common\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

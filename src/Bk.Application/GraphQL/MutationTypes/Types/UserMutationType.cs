@@ -2,22 +2,22 @@
 using Bk.Application.Commands.Users.Command;
 using Bk.Application.Commands.Users.ViewModel;
 using Bk.Application.Common;
-using Bk.Common.Roles;
+using Bk.Application.GraphQL.QueryTypes;
+using Bk.Common.GraphQL;
 using HotChocolate;
-using HotChocolate.AspNetCore.Authorization;
 
-namespace Bk.Application.GraphQL.MutationTypes
+namespace Bk.Application.GraphQL.MutationTypes.Types
 {
     public class UserMutationType:BaseMutation
     {
-        [Authorize(Roles = new[] {ApplicationRoles.Owner})]
+      //  [Authorize(Roles = new[] {ApplicationRoles.Owner})]
         public async Task<string> AssignRolesToUser(AssignUserRoles model, [GraphQLSession] OAuthSession session, [Service] IUserCommandService commandService)
         {
             model.BusinessId = session.TenantId;
             await commandService.AssignUserRoles(model);
             return Ok();
         }
-        [Authorize(Roles = new[] { ApplicationRoles.Owner })]
+        //[Authorize(Roles = new[] { ApplicationRoles.Owner })]
         public async Task<string> SyncActiveDirectoryUsers([GraphQLSession] OAuthSession session, [Service] IUserCommandService commandService)
         {
             await commandService.SyncActiveDirectoryUsers(new SyncActiveDirectory

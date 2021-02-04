@@ -1,4 +1,6 @@
-﻿namespace Bk.Application.GraphQL.MutationTypes
+﻿using Bk.Common.GraphQL;
+
+namespace Bk.Application.GraphQL.MutationTypes.Types
 {
     public class BusinessMutationType:BaseMutation
     {

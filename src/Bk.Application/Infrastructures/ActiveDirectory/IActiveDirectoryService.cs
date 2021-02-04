@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
+using JPProject.Sso.Domain.Models;
 
 namespace Bk.Application.Infrastructures.ActiveDirectory
 {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Bk.Application.Common;
+using Bk.Application.GraphQL.MutationTypes;
+using Bk.Application.GraphQL.QueryTypes;
 using Bk.Common.ArrayUtils;
 using Bk.Common.GraphQL;
 using HotChocolate.AspNetCore.Voyager;
@@ -40,6 +42,7 @@ namespace Bk.Application.GraphQL
                     }
                 })
                 .AddQueryType<Query>()
+                .IgnoreRootTypes()
                 .AddMutationType<Mutation>();
             types
                 .Where(type => typeof(IGraphQLType).IsAssignableFrom(type) && !type.IsInterface)

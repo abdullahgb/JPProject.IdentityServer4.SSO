@@ -66,7 +66,7 @@ namespace Bk.Application.Commands.Users.Command
 
             var admin = await _userRepository.GetById(vm.Id,vm.BusinessId) ?? throw UserNotFound(vm.Id);
 
-            admin.Update(vm.FirstName, vm.LastName, vm.Email, vm.Gender, vm.State);
+            admin.Update(vm.FirstName, vm.LastName, vm.Email, vm.Gender);
 
             await _userRepository.SaveChanges();
         }
@@ -88,13 +88,12 @@ namespace Bk.Application.Commands.Users.Command
             }
             else
             {
-                vm.Roles.Add(ApplicationRoles.None);
-                var role = await _roleRepository.GetRole(ApplicationRoles.None);
+                vm.Roles.Add(ApplicationRoles.Member);
+                var role = await _roleRepository.GetRole(ApplicationRoles.Member);
                 user.ReplaceUserRole(vm.BusinessId, role);
             }
 
             await _businessRepository.SaveChanges();
-            await _eventBus.Publish(new UserRoleChanged(vm.BusinessId.ToString(),user.Id, vm.Roles));
         }
 
         public async Task SyncActiveDirectoryUsers(SyncActiveDirectory vm)
@@ -111,19 +110,22 @@ namespace Bk.Application.Commands.Users.Command
                 // check for users if they already registered tenant before company synchronize active directory
                 var alreadyRegisteredUsers =
                     await _userRepository.GetByEmail(newUsers.Select(x => x.Email).ToList());
+                var commonUsersFromDifferentUsers = new List<UserIdentity>();
                 if (alreadyRegisteredUsers.Any())
                 {
                     // remove all those users that already exists in db
-                    newUsers = newUsers.Where(user => !alreadyRegisteredUsers.Select(alreadyRegisteredUser => alreadyRegisteredUser.Email).Contains(user.Email)).ToList();
-                    // update users list to include already registered users from different tenant
-                    newUsers = newUsers.Concat(alreadyRegisteredUsers).ToList();
+                    commonUsersFromDifferentUsers = alreadyRegisteredUsers.Where(alreadyRegisteredUser => newUsers.Select(newUser => newUser.Email).Contains(alreadyRegisteredUser.Email)).ToList();
+                    commonUsersFromDifferentUsers.ForEach(commonUserFromDifferentTenant=> newUsers.RemoveAll(newUser=> newUser.Email.Trim().ToLower().Equals(commonUserFromDifferentTenant.Email.ToLower().ToLower())));
                 }
                 _userRepository.InsertBulk(newUsers);
                 await _userRepository.SaveChanges();
-                var noneRole = await _roleRepository.GetRole(ApplicationRoles.None);
+                var noneRole = await _roleRepository.GetRole(ApplicationRoles.Member);
+                // update users list to include already registered users from different tenant
+                newUsers.AddRange(commonUsersFromDifferentUsers);
                 business.AddUsersWithRole(newUsers, noneRole);
                 await _businessRepository.SaveChanges();
-                await _eventBus.Publish(newUsers.Select(x => new UserCreated(vm.BusinessId.ToString(), x.Id, x.UserName, x.Email, new List<string> { ApplicationRoles.None })));
+                await _eventBus.Publish(newUsers.Select(x =>
+                    new UserCreatedIntegration(x.Id, x.FirstName, x.LastName,x.Email, vm.BusinessId.ToString())));
             }
            
         }
@@ -133,7 +135,7 @@ namespace Bk.Application.Commands.Users.Command
             // Get AggregateRoot from repository
             var admin = await _userRepository.GetById(adminId) ?? throw UserNotFound(adminId);
 
-            admin.Restore();
+            //admin.Restore();
 
             // Save Changes in repository
             await _userRepository.SaveChanges();
@@ -144,7 +146,7 @@ namespace Bk.Application.Commands.Users.Command
             // Get AggregateRoot from repository
             var user = await _userRepository.GetById(id) ?? throw new NotFoundException("User not found.");
 
-            user.Archive();
+            //user.Archive();
 
             // Save Changes in repository
             await _userRepository.SaveChanges();

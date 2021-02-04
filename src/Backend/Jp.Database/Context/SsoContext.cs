@@ -131,10 +131,13 @@ namespace Jp.Database.Context
         {
             builder.Entity<RoleIdentity>().ToTable(TableConsts.IdentityRoles);
             builder.Entity<IdentityRoleClaim<string>>().ToTable(TableConsts.IdentityRoleClaims);
-            var userEntity =  builder.Entity<UserIdentity>();
-            userEntity.ToTable(TableConsts.IdentityUsers);
-            userEntity.Property(x => x.State).HasDefaultValue(States.Active);
-            userEntity.Property(x => x.MultitenantEnabled).HasDefaultValue(true);
+            builder.Entity<UserIdentity>(userEntity =>
+            {
+                userEntity.ToTable(TableConsts.IdentityUsers);
+                userEntity.Property(x => x.MultitenantEnabled).HasDefaultValue(true);
+                userEntity.Property(x => x.IsExternalUser).HasDefaultValue(false);
+            });
+         
             builder.Entity<IdentityUserLogin<string>>().ToTable(TableConsts.IdentityUserLogins);
             builder.Entity<IdentityUserClaim<string>>().ToTable(TableConsts.IdentityUserClaims);
             builder.Entity<IdentityUserToken<string>>().ToTable(TableConsts.IdentityUserTokens);
