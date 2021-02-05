@@ -30,21 +30,22 @@ namespace Bk.Application.Commands.Users.ViewModel
     {
         [Required]
         public Guid Id { get; set; }
+
         [Required]
         public Guid BusinessId { get; set; }
+
         [Required]
         [StringLength((int)QuickValidator.User.FirstNameMaxLength, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength =(int)QuickValidator.User.FirstNameMinLength)]
         public string FirstName { get; set; }
         [Required]
         [StringLength((int)QuickValidator.User.LastNameMaxLength, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = (int)QuickValidator.User.LastNameMinLength)]
         public string LastName { get; set; }
+
         [EmailAddress]
         [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
-        [Required]
-        public Gender Gender { get; set; }
-        [Required]
+        
         public States State { get; set; }
         public virtual string Pic { get; set; }
     }

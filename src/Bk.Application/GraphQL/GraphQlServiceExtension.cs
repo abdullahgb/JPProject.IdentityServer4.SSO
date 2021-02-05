@@ -6,6 +6,7 @@ using Bk.Application.GraphQL.QueryTypes;
 using Bk.Common.ArrayUtils;
 using Bk.Common.GraphQL;
 using HotChocolate.AspNetCore.Voyager;
+using HotChocolate.Types.Pagination;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -25,7 +26,12 @@ namespace Bk.Application.GraphQL
                 .AddFiltering()
                 .AddSorting()
                 .AddProjections()
-                .AddAuthorization()
+                .AddAuthorization().SetPagingOptions(new PagingOptions
+                {
+                    IncludeTotalCount = true,
+                    DefaultPageSize = 12,
+                    MaxPageSize = 100
+                })
                 .AddHttpRequestInterceptor(async (ctx, executor, builder, token) =>
                 {
                     var bearerAuth = ctx.Request.Headers["Authorization"].FirstOrDefault()?.StartsWith("Bearer ") ?? false;

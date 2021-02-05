@@ -13,7 +13,7 @@ namespace Bk.Application.GraphQL.MutationTypes.Types
     {
         protected override void Configure(IObjectTypeDescriptor<SessionMutationType> descriptor)
         {
-            
+            descriptor.Field("me").Resolve(x => new ProfileMutationType());
         }
     }
 }

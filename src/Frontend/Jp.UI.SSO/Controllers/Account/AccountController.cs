@@ -38,7 +38,6 @@ using Bk.Common.StringUtils;
 using Jp.Api.Management.Interfaces;
 using Jp.Database;
 using Jp.Database.Identity;
-using Microsoft.EntityFrameworkCore;
 using ServiceStack;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 using StringExtensions = JPProject.Domain.Core.Util.StringExtensions;
@@ -78,7 +77,8 @@ namespace Jp.UI.SSO.Controllers.Account
             IUserManageAppService userManageAppService,
             ISystemUser user,
             IReCaptchaService reCaptchaService,
-            IMediatorHandler mediator, IEventBus eventBus,
+            IMediatorHandler mediator,
+            IEventBus eventBus,
             ILogger<AccountController> logger)
         {
             _signInManager = signInManager;
@@ -543,8 +543,8 @@ namespace Jp.UI.SSO.Controllers.Account
 
             // issue authentication cookie for user
 
-            var s = await _userManager.FindByNameAsync(user.UserName);
 
+            var s = await _userManager.FindByNameAsync(user.UserName);
             await _eventBus.Publish(new UserCreatedIntegration(s.Id, s.FirstName, s.LastName, s.Email));
             var principal = await _signInManager.CreateUserPrincipalAsync(s);
             additionalLocalClaims.AddRange(principal.Claims);

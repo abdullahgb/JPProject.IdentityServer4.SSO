@@ -3,6 +3,7 @@ using Bk.Application.Common;
 using Bk.Common.GraphQL;
 using Bk.Common.Roles;
 using HotChocolate;
+using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Data;
 using HotChocolate.Types;
 using Jp.Database.Context;
@@ -13,7 +14,7 @@ namespace Bk.Application.GraphQL.QueryTypes.Types
     // ReSharper disable once ClassNeverInstantiated.Global
     public class BusinessQueryType
     {
-       // [Authorize(Policy = "TenantOwner")]
+        [Authorize(Policy = "TenantOwner")]
         [UseProjection]
         [UseFiltering]
         [GraphQLIgnore]
@@ -23,7 +24,7 @@ namespace Bk.Application.GraphQL.QueryTypes.Types
             where userRole.UserId == session.SubjectId.ToString() && role.Name.Contains(ApplicationRoles.Owner)
             select tenant).Distinct();
 
-        //[Authorize]
+        [Authorize]
         [UseProjection]
         [UseFiltering]
         public IQueryable<Tenant> GetAssociatedBusinesses([GraphQLSession] OAuthSession session,[Service] SsoQueryContext context) => (from tenant in context.Tenants

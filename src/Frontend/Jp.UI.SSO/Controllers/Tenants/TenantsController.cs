@@ -136,7 +136,7 @@ namespace Jp.UI.SSO.Controllers.Tenants
             user.CompleteTenantProfile();
             await _userManager.UpdateAsync(user);
             //await transaction.CommitAsync();
-            
+
             var @event = new BusinessCreatedIntegration(newTenant.Id, newTenant.CanonicalName, ownerId);
             // Publish event so other services can be notified
             await _eventBus.Publish(@event);

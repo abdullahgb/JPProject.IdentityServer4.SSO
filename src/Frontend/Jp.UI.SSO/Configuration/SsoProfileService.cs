@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Bk.Common.Claims;
 using Bk.Common.ObjectUtils;
 using Jp.Database.Identity;
 using JPProject.Domain.Core.Util;
@@ -132,10 +131,8 @@ namespace Jp.UI.SSO.Configuration
         {
             var user = await UserManager.GetUserAsync(context.Subject);
 
-            // In case admin is accidentally blocked.
+            
             var isBlocked = user.LockoutEnabled && user.LockoutEnd.GetValueOrDefault(DateTimeOffset.UtcNow.UtcDateTime.Date) > DateTimeOffset.UtcNow.UtcDateTime;
-            if (isBlocked)
-                isBlocked = await UserManager.IsInRoleAsync(user, "Administrator");
             if (context.Caller == "AuthorizeEndpoint")
             {
                 var acrTenant = GetTenantNameFromAcr(context);

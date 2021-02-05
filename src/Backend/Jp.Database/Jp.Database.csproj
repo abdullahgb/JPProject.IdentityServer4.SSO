@@ -5,27 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20201210170222_AddPrfileCompleted2.cs" />
-    <Compile Remove="Migrations\20201210170222_AddPrfileCompleted2.Designer.cs" />
-    <Compile Remove="Migrations\20210118153047_UpdateUseRoles.cs" />
-    <Compile Remove="Migrations\20210118153047_UpdateUseRoles.Designer.cs" />
-    <Compile Remove="Migrations\20210118153845_UpdateUseRoles.cs" />
-    <Compile Remove="Migrations\20210118153845_UpdateUseRoles.Designer.cs" />
-    <Compile Remove="Migrations\20210119115333_MultiTenant.cs" />
-    <Compile Remove="Migrations\20210119115333_MultiTenant.Designer.cs" />
-    <Compile Remove="Migrations\20210119121127_MultiTenant.cs" />
-    <Compile Remove="Migrations\20210119121127_MultiTenant.Designer.cs" />
-    <Compile Remove="Migrations\20210119123648_MultiTenant.cs" />
-    <Compile Remove="Migrations\20210119123648_MultiTenant.Designer.cs" />
-    <Compile Remove="Migrations\20210128124815_JoinTenantUser.cs" />
-    <Compile Remove="Migrations\20210128124815_JoinTenantUser.Designer.cs" />
-    <Compile Remove="Migrations\20210128125025_JoinTenantUser.cs" />
-    <Compile Remove="Migrations\20210128125025_JoinTenantUser.Designer.cs" />
-    <Compile Remove="Migrations\20210204141310_AddIsExternal2.cs" />
-    <Compile Remove="Migrations\20210204141310_AddIsExternal2.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="IdentityServer4.EntityFramework" Version="3.1.3" />
     <!-- <PackageReference Include="JPProject.Domain.Core" Version="3.2.10-prerelease1.07-04-161958" />
     <PackageReference Include="JPProject.Sso.AspNetIdentity" Version="3.2.10-prerelease1.07-04-161958" />
@@ -51,6 +30,5 @@
 
   <ItemGroup>
     <Folder Include="Common\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

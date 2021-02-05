@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.0.2.3</Version>
+    <Version>1.0.2.2</Version>
     <Product>Bk.Auth.Events</Product>
     <Description>Common projects of Auth Events</Description>
     <PackageId>Bk.Auth.Events</PackageId>

@@ -23,7 +23,7 @@ namespace Bk.Application.Commands.Users.Repository
         public Task<UserIdentity> GetById(Guid id, Guid businessId)
             => (from user in _users
                 join userRole in _commandContext.UserRoles on user.Id equals userRole.UserId
-                where userRole.TenantId == businessId.ToString()
+                where userRole.TenantId.Equals(businessId.ToString()) && userRole.UserId.Equals(id.ToString())
                 select user).FirstOrDefaultAsync();
         public Task<bool> HasRole(Guid businessId,Guid id, List<string> appRoles)
             => (from user in _users
@@ -31,6 +31,12 @@ namespace Bk.Application.Commands.Users.Repository
                 join role in _commandContext.Roles on userRole.RoleId equals role.Id    
                 where appRoles.Contains(role.Name) && userRole.TenantId == businessId.ToString()
                 select user).AnyAsync();
+
+        public Task<List<UserRoleIdentity>> GetUserAndRoles(Guid id, Guid businessId)
+            => (from user in _users
+                join userRole in _commandContext.UserRoles on user.Id equals userRole.UserId
+                where userRole.TenantId.Equals(businessId.ToString()) && userRole.UserId.Equals(id.ToString())
+                select userRole).ToListAsync();
 
         public void Add(UserIdentity user)
             => _users.Add(user);

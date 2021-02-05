@@ -31,12 +31,13 @@ namespace Bk.Application.Infrastructures.ActiveDirectory
                 reqUsers.AddRange(req);
             }
             var dbUsersEmailHash = new HashSet<string>(oldUserEmails).ToList();
-            var newUsers = reqUsers
+            return reqUsers
                 .Where(reqUser => !reqUser.UserPrincipalName.IsNullOrEmpty())
                 .Where(reqUser => !dbUsersEmailHash.Contains(reqUser.UserPrincipalName))
                 .Select(src => new UserIdentity(src.DisplayName, src.UserPrincipalName))
                 .ToList();
-            return newUsers;
+
+
         }
     }
 }

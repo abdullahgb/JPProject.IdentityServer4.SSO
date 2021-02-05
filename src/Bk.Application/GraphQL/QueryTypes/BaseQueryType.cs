@@ -6,7 +6,7 @@ using HotChocolate.Types;
 namespace Bk.Application.GraphQL.QueryTypes
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class Query { }
+    public class Query {}
 
     public class Session
     {

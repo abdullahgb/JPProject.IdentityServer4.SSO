@@ -10,11 +10,11 @@ namespace Bk.Application.Commands.Users.Command
     public interface IUserCommandService: ICommandService
     {
         //Task<Guid> CreateAdmin(CreateUser vm);
-        Task UpdateAdmin(UpdateUser vm);
-        Task AssignUserRoles(AssignUserRoles vm);
+        Task UpdateUser(UpdateUser vm);
+        Task AssignUserRoles(AssignUserRoles vm, bool isAdmin);
         Task SyncActiveDirectoryUsers(SyncActiveDirectory vm);
         Task<UserIdentity> UpdatePhoto(Guid id, string fileName, Stream stream);
-        Task Archive(Guid id);
-        Task Restore(Guid adminId);
+        Task Archive(Guid id, Guid businessId);
+        Task Restore(Guid id, Guid businessId);
     }
 }

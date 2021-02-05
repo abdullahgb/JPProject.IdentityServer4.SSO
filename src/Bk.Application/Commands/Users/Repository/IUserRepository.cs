@@ -16,5 +16,6 @@ namespace Bk.Application.Commands.Users.Repository
         void InsertBulk(List<UserIdentity> users);
         Task<bool> IsEmailDuplicateExceptUser(Guid userId, string email);
         Task<List<UserIdentity>> GetByEmail(List<string> emails);
+        Task<List<UserRoleIdentity>> GetUserAndRoles(Guid id, Guid businessId);
     }
 }

@@ -18,6 +18,7 @@ using Bk.Common.LinqUtils;
 using Bk.Common.Roles;
 using Bk.Common.Services;
 using Bk.Common.StringUtils;
+using JPProject.Sso.AspNetIdentity.Models;
 using JPProject.Sso.AspNetIdentity.Models.Identity;
 
 namespace Bk.Application.Commands.Users.Command
@@ -54,37 +55,32 @@ namespace Bk.Application.Commands.Users.Command
         //    if (await _userRepository.IsEmailDuplicate(vm.Email))
         //        throw new ConflictException($"User already exists against {vm.Email}");
 
-        //    var admin = new UserIdentity(vm.FirstName, vm.LastName, vm.Email, vm.Gender);
+        //    var admin = new UserIdentity(vm.FirstName, vm.LastName, vm.Email, Gender.NA);
         //    _userRepository.Add(admin);
         //    await _userRepository.SaveChanges();
-        //    return admin.Id;
+        //    return Guid.Parse(admin.Id);
         //}
 
-        public async Task UpdateAdmin(UpdateUser vm)
+        public async Task UpdateUser(UpdateUser vm)
         {
-	        if (await _userRepository.IsEmailDuplicateExceptUser(vm.Id, vm.Email)) throw ConflictEmail(vm.Email);
+	        if (await _userRepository.IsEmailDuplicateExceptUser(vm.Id, vm.Email))
+                throw ConflictEmail(vm.Email);
 
             var admin = await _userRepository.GetById(vm.Id,vm.BusinessId) ?? throw UserNotFound(vm.Id);
 
-            admin.Update(vm.FirstName, vm.LastName, vm.Email, vm.Gender);
+            admin.Update(vm.FirstName, vm.LastName, vm.Email);
 
             await _userRepository.SaveChanges();
         }
 
-        public async Task AssignUserRoles(AssignUserRoles vm)
+        public async Task AssignUserRoles(AssignUserRoles vm, bool isAdmin)
         {
             // check if user is not owner,Oauth admin
-            if (await _userRepository.HasRole(vm.BusinessId, vm.Id, new List<string>
-            {
-                ApplicationRoles.Owner,
-                ApplicationRoles.OAuthAdmin
-            })) throw new UnprocessableException("Cannot change this person role");
-
             var user = await _userRepository.GetById(vm.Id, vm.BusinessId) ?? throw UserNotFound(vm.Id);
             if (vm.Roles.HasAny())
             {
                 var roles = await _roleRepository.GetRoles(vm.Roles);
-                user.ReplaceUserRoles(vm.BusinessId, roles);
+                user.ReplaceUserRoles(vm.BusinessId, roles, isAdmin);
             }
             else
             {
@@ -94,6 +90,7 @@ namespace Bk.Application.Commands.Users.Command
             }
 
             await _businessRepository.SaveChanges();
+            //await _eventBus.Publish(new UserRoleChanged(vm.BusinessId.ToString(),user.Id, vm.Roles));
         }
 
         public async Task SyncActiveDirectoryUsers(SyncActiveDirectory vm)
@@ -115,7 +112,7 @@ namespace Bk.Application.Commands.Users.Command
                 {
                     // remove all those users that already exists in db
                     commonUsersFromDifferentUsers = alreadyRegisteredUsers.Where(alreadyRegisteredUser => newUsers.Select(newUser => newUser.Email).Contains(alreadyRegisteredUser.Email)).ToList();
-                    commonUsersFromDifferentUsers.ForEach(commonUserFromDifferentTenant=> newUsers.RemoveAll(newUser=> newUser.Email.Trim().ToLower().Equals(commonUserFromDifferentTenant.Email.ToLower().ToLower())));
+                    commonUsersFromDifferentUsers.ForEach(commonUserFromDifferentTenant => newUsers.RemoveAll(newUser => newUser.Email.Trim().ToLower().Equals(commonUserFromDifferentTenant.Email.ToLower().ToLower())));
                 }
                 _userRepository.InsertBulk(newUsers);
                 await _userRepository.SaveChanges();
@@ -125,31 +122,39 @@ namespace Bk.Application.Commands.Users.Command
                 business.AddUsersWithRole(newUsers, noneRole);
                 await _businessRepository.SaveChanges();
                 await _eventBus.Publish(newUsers.Select(x =>
-                    new UserCreatedIntegration(x.Id, x.FirstName, x.LastName,x.Email, vm.BusinessId.ToString())));
+                    new UserCreatedIntegration(x.Id, x.FirstName, x.LastName, x.Email, vm.BusinessId.ToString())));
             }
-           
+
         }
 
-        public async Task Restore(Guid adminId)
+        public async Task Restore(Guid id, Guid businessId)
         {
             // Get AggregateRoot from repository
-            var admin = await _userRepository.GetById(adminId) ?? throw UserNotFound(adminId);
+            var user = await _userRepository.GetById(id) ?? throw UserNotFound(id);
 
-            //admin.Restore();
+            UpdateUserState(user, businessId, States.Active);
 
             // Save Changes in repository
             await _userRepository.SaveChanges();
         }
 
-        public async Task Archive(Guid id)
+        public async Task Archive(Guid id, Guid businessId)
         {
             // Get AggregateRoot from repository
             var user = await _userRepository.GetById(id) ?? throw new NotFoundException("User not found.");
 
-            //user.Archive();
+            UpdateUserState(user, businessId, States.Inactive);
 
             // Save Changes in repository
             await _userRepository.SaveChanges();
+        }
+
+        private void UpdateUserState(UserIdentity user, Guid businessId, States state)
+        {
+            var userRolesInBusiness = user.UserRoles.Where(x =>
+                x.TenantId.Equals(businessId.ToString())).ToList();
+
+            userRolesInBusiness.ForEach(x => x.State = state);
         }
         public async Task<UserIdentity> UpdatePhoto(Guid id, string fileName, Stream stream)
         {
