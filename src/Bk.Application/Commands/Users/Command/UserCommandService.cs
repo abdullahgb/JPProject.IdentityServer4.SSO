@@ -68,7 +68,7 @@ namespace Bk.Application.Commands.Users.Command
 
             var admin = await _userRepository.GetById(vm.Id,vm.BusinessId) ?? throw UserNotFound(vm.Id);
 
-            admin.Update(vm.FirstName, vm.LastName, vm.Email);
+            admin.Update(vm.FirstName, vm.LastName);
 
             await _userRepository.SaveChanges();
         }
